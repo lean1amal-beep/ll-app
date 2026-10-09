@@ -50,8 +50,7 @@ const GASTOS_INICIAIS: LinhaGasto[] = [
   { incluir: true, descricao: "12 camisas Zimm #12905", categoria: "camisa_lisa", valor: 25304, dia: "2026-08-05", estimado: false },
   { incluir: true, descricao: "4 camisas Zimm #14459", categoria: "camisa_lisa", valor: 10259, dia: "2026-09-13", estimado: false },
   { incluir: true, descricao: "3 camisas Zimm (plus size, feminina, 2ª linha)", categoria: "camisa_lisa", valor: 7090, dia: "2026-06-15", estimado: true },
-  // Agostinho: pedido de 40 (20 G + 20 GG) a R$ 20 em 13/03 — quantidade comprada de fato a confirmar
-  { incluir: false, descricao: "Camisas Agostinho (R$ 20 cada)", categoria: "camisa_lisa", valor: null, dia: "2026-03-13", estimado: true },
+  { incluir: true, descricao: "40 camisas Agostinho (R$ 20 + R$ 15 metrô)", categoria: "camisa_lisa", valor: 81500, dia: "2026-03-13", estimado: false },
   { incluir: true, descricao: "2 packs de imagens", categoria: "marketing", valor: 5000, dia: "2026-04-10", estimado: false },
   { incluir: true, descricao: "DTF pedido de 10 camisas", categoria: "dtf", valor: 6000, dia: "2026-07-10", estimado: false },
   { incluir: false, descricao: "Outros DTF (mar a out)", categoria: "dtf", valor: null, dia: "2026-06-15", estimado: true },
