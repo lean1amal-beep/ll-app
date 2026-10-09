@@ -118,6 +118,8 @@ Conferência pelo estoque (09/10): 90 lisas compradas − ~22 lisas contadas −
 
 ### 2.4 Uso próprio
 Leandro já pegou **~5 a 7 camisas** da marca pra uso pessoal (inclusive estampas de pedidos de clientes). Entra como **retirada em produto (estimado)**.
+**Atualizado em 09/10:** são **~12 camisas retiradas** no total, entre uso próprio e presentes (ex.: uma de presente para a Camille). Lançar como uma retirada em produto de 12 (estimado), substituindo os ~6 do acerto.
+Conferência refeita: 90 compradas − ~22 lisas − 9 prontas − 12 retiradas ≈ **47 vendidas ou perdidas**; conhecidas 19 vendidas + 10 personalizadas = 29 → **~18 sem explicação**.
 
 ### 2.5 Panorama
 Investido conhecido ~R$ 2.300 a 2.600. Receita confirmada ~R$ 770. **A marca ainda não se pagou**, principalmente por causa da prensa.

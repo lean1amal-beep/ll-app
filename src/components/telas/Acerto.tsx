@@ -51,7 +51,7 @@ export default function Acerto({ dados }: { dados: Dados }) {
   const [jaPagouPai, setJaPagouPai] = useState<number | null>(null);
   const [kittl, setKittl] = useState<number | null>(30000);
   const [vendas, setVendas] = useState(VENDAS_INICIAIS);
-  const [usoProprio, setUsoProprio] = useState(6);
+  const [usoProprio, setUsoProprio] = useState(12); // Leandro em 09/10: ~12 (uso próprio + presentes)
   const [gastos, setGastos] = useState(GASTOS_INICIAIS);
   const [estoque, setEstoque] = useState<Record<string, number>>({});
 
