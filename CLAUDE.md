@@ -96,6 +96,7 @@ Fornecedor **Zimm Brasil** (zimmbrasil.com, compra online, frete Jadlog). Custo 
 | #12905 | 05/08/2026 | 12 oversized gola alta R$ 19,90: branca P2, G2, GG2, G1 2; preta G1 2, GG2 | R$ 253,04 | R$ 21,09 |
 | #14459 | 13/09/2026 | 4 femininas R$ 21,50: branca M, G; preta M, G | R$ 102,59 | R$ 25,65 |
 | sem nº | **data a confirmar** | plus size preta G2 R$ 30,90 · feminina branca GG R$ 21,50 · "segunda linha" P R$ 4,90 · frete 13,60 | R$ 70,90 | 38,23 · 26,60 · 6,06 (frete proporcional) |
+Fornecedor **Sol do Saara** (centro do Rio, WhatsApp, entrega por Uber Moto): pedido de ~13/04/2026, **20 camisas pretas: 6 P, 6 M, 8 "XG"** (confirmar se XG = GG ou XGG). Preço por camisa provavelmente R$ 20 (contexto 1.3: "R$ 20 mar–abr, loja física, qualidade ruim") e valor do Uber Moto: **a confirmar**.
 Total Zimm: 30 camisas, R$ 644,87, **média R$ 21,50**. Leandro vai mandar também: fornecedor do centro do Rio ("Sol do Verão"?) e um fornecedor de camisas boas a R$ 20 (que ele parou por achar caro; pode retomar).
 Plano combinado: lançar como compras antigas (substituindo o "~35 camisas R$ 612,50" estimado), mudar custo de referência da lisa e criar forma de corrigir o custo das lisas já contadas (entraram a R$ 17,50). Modelo novo a criar: **Oversized** (P, M, G, GG, G1).
 
