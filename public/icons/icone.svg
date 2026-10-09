@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#000"/>
+  <g fill="#fff">
+    <!-- primeiro L: haste + disco de vinil no pé -->
+    <rect x="120" y="120" width="44" height="210"/>
+    <circle cx="190" cy="350" r="72"/>
+    <!-- segundo L -->
+    <rect x="286" y="120" width="44" height="272"/>
+    <rect x="286" y="348" width="120" height="44"/>
+  </g>
+  <!-- sulcos e selo do disco -->
+  <g fill="none" stroke="#000" stroke-width="3">
+    <circle cx="190" cy="350" r="60"/>
+    <circle cx="190" cy="350" r="50"/>
+    <circle cx="190" cy="350" r="40"/>
+  </g>
+  <circle cx="190" cy="350" r="22" fill="#000"/>
+  <circle cx="190" cy="350" r="6" fill="#fff"/>
+</svg>
