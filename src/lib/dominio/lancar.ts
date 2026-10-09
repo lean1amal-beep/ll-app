@@ -409,3 +409,27 @@ function limparExtras(e: Extras): Extras {
   }
   return out;
 }
+
+// ─── Correção de custo ───────────────────────────────────────────────────────
+
+/**
+ * Troca o custo unitário de todas as posições de um item (ex.: todas as lisas) que têm peças.
+ * Gera um ajuste de estoque: sai cada posição pelo custo antigo e entra de volta pelo novo.
+ * A quantidade não muda; a diferença de valor entra no resultado (como na contagem).
+ * Retorna null se nada mudar.
+ */
+export function montarCorrecaoCusto(item: ItemEstoque, novoCusto: number, ctx: Contexto, extras: Extras = {}, agora = new Date()): Lancamento | null {
+  const movimentos: Movimento[] = [];
+  for (const p of ctx.estoque.values()) {
+    if (p.item !== item || p.quantidade <= 0 || p.custo_medio === novoCusto) continue;
+    const base = { item: p.item, produto_id: p.produto_id, modelo: p.modelo, cor: p.cor, tamanho: p.tamanho };
+    movimentos.push({ ...base, quantidade: -p.quantidade, custo_unitario_centavos: p.custo_medio });
+    movimentos.push({ ...base, quantidade: p.quantidade, custo_unitario_centavos: novoCusto });
+  }
+  if (!movimentos.length) return null;
+  const valor = movimentos.reduce((s, m) => s + m.quantidade * m.custo_unitario_centavos, 0);
+  return novoLancamento(
+    { descricao: `Custo corrigido para ${formatarReais(novoCusto)}`, ...extras, tipo: "ajuste_estoque", valor_centavos: valor, quantidade: 0, movimentos },
+    agora,
+  );
+}

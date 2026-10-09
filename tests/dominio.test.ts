@@ -409,3 +409,26 @@ sem tamanho`;
     expect(r.erros).toEqual(["XX - Errado", "sem tamanho"]);
   });
 });
+
+describe("correção de custo", () => {
+  it("troca o custo das lisas sem mudar a quantidade", async () => {
+    const { montarCorrecaoCusto } = await import("@/lib/dominio/lancar");
+    const c = montarContagem(
+      [
+        { item: "lisa", cor: "Preta", tamanho: "M", real: 2 },
+        { item: "lisa", cor: "Preta", tamanho: "G", real: 5 },
+      ],
+      ctx([]),
+      {},
+      t(),
+    )!;
+    expect(c.valor_centavos).toBe(7 * 1750);
+    const corr = montarCorrecaoCusto("lisa", 2120, ctx([c]), {}, t())!;
+    const est = calcularEstoque([c, corr]);
+    expect(quantidade(est, { item: "lisa", cor: "Preta", tamanho: "G" })).toBe(5);
+    expect(custoAtual(est, config, { item: "lisa", cor: "Preta", tamanho: "G" })).toBe(2120);
+    expect(valorEstoque(est)).toBe(7 * 2120);
+    expect(efeito(corr).resultado).toBe(7 * (2120 - 1750));
+    expect(montarCorrecaoCusto("lisa", 2120, ctx([c, corr]))).toBeNull();
+  });
+});

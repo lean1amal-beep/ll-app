@@ -3,10 +3,10 @@ import { useMemo, useState } from "react";
 import { salvarConfig, salvarLancamento, type Dados } from "@/lib/dados";
 import { formatarReais } from "@/lib/dominio/dinheiro";
 import { chaveEstoque, quantidade as qtdEstoque, valorEstoque, valorPosicao, type PosicaoEstoque } from "@/lib/dominio/estoque";
-import { montarContagem } from "@/lib/dominio/lancar";
+import { montarContagem, montarCorrecaoCusto } from "@/lib/dominio/lancar";
 import { nomesModelos, tamanhosDo, type ItemEstoque } from "@/lib/dominio/tipos";
 import { ir } from "@/lib/rota";
-import { Botao, Chips, Contador, Vazio, cx, useAviso } from "../ui";
+import { Alternar, Botao, CampoDinheiro, Chips, Contador, Vazio, cx, useAviso } from "../ui";
 
 type Aba = "lisas" | "prontas" | "insumos";
 
@@ -22,6 +22,7 @@ interface Alvo {
 export default function Estoque({ dados }: { dados: Dados }) {
   const [aba, setAba] = useState<Aba>("prontas");
   const [contando, setContando] = useState<Alvo | null>(null);
+  const [corrigindo, setCorrigindo] = useState(false);
   const est = dados.ctx.estoque;
   const minimo = dados.config.estoque_minimo;
 
@@ -85,7 +86,12 @@ export default function Estoque({ dados }: { dados: Dados }) {
 
       {aba === "lisas" && (
         <div className="space-y-5">
-          <div className="text-sm text-cinza">Valor: {formatarReais(valorDe("lisa"))} · toque num número para corrigir</div>
+          <div className="flex items-baseline justify-between gap-2">
+            <div className="text-sm text-cinza">Valor: {formatarReais(valorDe("lisa"))} · toque num número para corrigir</div>
+            <button type="button" className="underline text-sm shrink-0" onClick={() => setCorrigindo(true)}>
+              Corrigir custo
+            </button>
+          </div>
           {nomesModelos(dados.config).flatMap((modelo, i) =>
             dados.config.cores.map((cor) => (
               <div key={`${modelo}${cor}`}>
@@ -158,6 +164,7 @@ export default function Estoque({ dados }: { dados: Dados }) {
       <AlertaMinimo dados={dados} />
 
       {contando && <ContarUm dados={dados} alvo={contando} aoFechar={() => setContando(null)} />}
+      {corrigindo && <CorrigirCusto dados={dados} aoFechar={() => setCorrigindo(false)} />}
     </div>
   );
 }
@@ -187,6 +194,48 @@ function ContarUm({ dados, alvo, aoFechar }: { dados: Dados; alvo: Alvo; aoFecha
                 await salvarLancamento(l);
                 avisar(`Corrigido para ${real} ✓`);
               }
+              aoFechar();
+            }}
+          >
+            Salvar
+          </Botao>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CorrigirCusto({ dados, aoFechar }: { dados: Dados; aoFechar: () => void }) {
+  const avisar = useAviso();
+  const lisas = [...dados.ctx.estoque.values()].filter((p) => p.item === "lisa" && p.quantidade > 0);
+  const qtd = lisas.reduce((s, p) => s + p.quantidade, 0);
+  const atual = qtd ? Math.round(lisas.reduce((s, p) => s + p.quantidade * p.custo_medio, 0) / qtd) : 0;
+  const [custo, setCusto] = useState<number | null>(dados.config.custos_referencia.lisa_centavos);
+  const [referencia, setReferencia] = useState(true);
+  return (
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-end" onClick={aoFechar}>
+      <div className="bg-papel w-full rounded-t-3xl p-6 pb-[calc(env(safe-area-inset-bottom)+24px)] space-y-5 animar-subir" onClick={(e) => e.stopPropagation()}>
+        <div>
+          <div className="font-bold text-lg">Corrigir custo das lisas</div>
+          <div className="text-cinza">
+            {qtd} lisas no estoque, hoje a {formatarReais(atual)} cada (média). Qual o custo real de cada uma, com frete?
+          </div>
+        </div>
+        <CampoDinheiro valor={custo} aoMudar={setCusto} grande />
+        <Alternar ligado={referencia} aoMudar={setReferencia}>
+          Usar esse valor também nas próximas contas <span className="text-cinza text-sm block">Muda o custo de referência da lisa em Ajustes</span>
+        </Alternar>
+        <div className="grid grid-cols-2 gap-2">
+          <Botao variante="secundario" onClick={aoFechar}>
+            Cancelar
+          </Botao>
+          <Botao
+            disabled={!custo}
+            onClick={async () => {
+              const l = montarCorrecaoCusto("lisa", custo!, dados.ctx, { confianca: "estimado" });
+              if (l) await salvarLancamento(l);
+              if (referencia) await salvarConfig((c) => ({ ...c, custos_referencia: { ...c.custos_referencia, lisa_centavos: custo! } }));
+              avisar(`Custo das lisas: ${formatarReais(custo!)} ✓`);
               aoFechar();
             }}
           >
