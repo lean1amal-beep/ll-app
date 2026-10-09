@@ -450,3 +450,12 @@ describe("compras reais de camisas", () => {
     expect(p.correcao!.movimentos.at(-1)!.custo_unitario_centavos).toBe(2083);
   });
 });
+
+describe("lucro do mês", () => {
+  it("não conta contagem de estoque como lucro do mês (mas conta no resultado)", () => {
+    const c = montarContagem([{ item: "lisa", cor: "Preta", tamanho: "G", real: 5 }], ctx([]), {}, t())!;
+    const r = calcularResumo([c], config, T0);
+    expect(r.mes.lucro).toBe(0);
+    expect(r.resultado).toBe(5 * 1750);
+  });
+});

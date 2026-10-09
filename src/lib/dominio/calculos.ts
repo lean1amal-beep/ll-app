@@ -118,7 +118,9 @@ export function resumoMes(lancs: Lancamento[], mes: string): ResumoMes {
   const r: ResumoMes = { mes, vendas_qtd: 0, vendas_valor: 0, gastos: 0, lucro: 0, retiradas: 0 };
   for (const l of ativos(lancs)) {
     if (mesBR(l.data) !== mes) continue;
-    r.lucro += efeito(l).resultado;
+    // Contagem/correção de estoque mexe no resultado acumulado, mas não é lucro do mês
+    // (ex.: o estoque contado no acerto inicial apareceria como "lucro" de outubro).
+    if (l.tipo !== "ajuste_estoque") r.lucro += efeito(l).resultado;
     if (l.tipo === "venda") {
       r.vendas_qtd += l.quantidade;
       r.vendas_valor += l.valor_centavos;
