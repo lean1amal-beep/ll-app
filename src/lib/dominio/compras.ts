@@ -35,6 +35,15 @@ export const DTF_ATACADAO: LinhaGasto[] = [
   { incluir: true, descricao: "DTF Atacadão nº 122 (1 m, com desconto)", categoria: "dtf", valor: 5000, dia: "2026-09-03", estimado: false },
 ];
 
+/** DTF comprado no Mercado Livre (prints enviados em 09/10). */
+export const DTF_MERCADO_LIVRE: LinhaGasto[] = [
+  { incluir: true, descricao: "DTF Mercado Livre Mimaki 100×60 cm", categoria: "dtf", valor: 3790, dia: "2026-04-14", estimado: false },
+  { incluir: true, descricao: "DTF Mercado Livre 1 m (57×100) jun", categoria: "dtf", valor: 3990, dia: "2026-06-23", estimado: false },
+  { incluir: true, descricao: "DTF Mercado Livre Mimaki 100×60 cm jul", categoria: "dtf", valor: 3790, dia: "2026-07-20", estimado: false },
+  { incluir: true, descricao: "DTF Mercado Livre 1 m (57×100) ago", categoria: "dtf", valor: 4990, dia: "2026-08-27", estimado: false },
+  { incluir: true, descricao: "DTF Mercado Livre 1 m (57×100) set", categoria: "dtf", valor: 5318, dia: "2026-09-14", estimado: false },
+];
+
 /** Custo médio real da lisa: 90 camisas, R$ 1.874,87 com frete/passagem. */
 export const CUSTO_REAL_LISA = 2083;
 
@@ -64,6 +73,12 @@ export const MIGRACOES: Migracao[] = [
     titulo: "Lançar as notas de DTF (Atacadão da Impressão)",
     resumo: "5 notas de mar a set, R$ 329,00 do seu bolso. A de 02/07 (R$ 60) já estava lançada.",
     linhas: DTF_ATACADAO,
+  },
+  {
+    id: "dtf_mercadolivre_2026_10",
+    titulo: "Lançar o DTF do Mercado Livre",
+    resumo: "5 compras de abr a set, R$ 218,78 do seu bolso.",
+    linhas: DTF_MERCADO_LIVRE,
   },
 ];
 
