@@ -341,3 +341,47 @@ describe("CSV", () => {
     expect(lerData("xx")).toBeNull();
   });
 });
+
+describe("modelos de camisa (baby look)", () => {
+  it("baby look tem estoque e custo separados da tradicional", () => {
+    const g = montarGasto(
+      {
+        categoria: "camisa_lisa",
+        valor_centavos: 1750 * 2 + 2200 * 3,
+        pago_por: "marca",
+        grade: [
+          { cor: "Preta", tamanho: "M", quantidade: 2 },
+          { modelo: "Baby look", cor: "Preta", tamanho: "M", quantidade: 3 },
+        ],
+      },
+      t(),
+    );
+    // rateio é por quantidade (custo médio da compra), então informe compras separadas para custos diferentes
+    const est = calcularEstoque([g]);
+    expect(quantidade(est, { item: "lisa", cor: "Preta", tamanho: "M" })).toBe(2);
+    expect(quantidade(est, { item: "lisa", modelo: "Baby look", cor: "Preta", tamanho: "M" })).toBe(3);
+    // "Tradicional" e vazio são o mesmo modelo (dados antigos continuam valendo)
+    expect(quantidade(est, { item: "lisa", modelo: "Tradicional", cor: "Preta", tamanho: "M" })).toBe(2);
+  });
+
+  it("prensar e vender baby look baixa só o baby look", () => {
+    const tradicional = montarGasto({ categoria: "camisa_lisa", valor_centavos: 1750 * 5, pago_por: "marca", grade: [{ cor: "Branca", tamanho: "P", quantidade: 5 }] }, t());
+    const baby = montarGasto({ categoria: "camisa_lisa", valor_centavos: 2200 * 4, pago_por: "marca", grade: [{ modelo: "Baby look", cor: "Branca", tamanho: "P", quantidade: 4 }] }, t());
+    const base = [tradicional, baby];
+    const p = montarPrensagem({ produto_id: "devil", modelo: "Baby look", cor: "Branca", tamanhos: [{ tamanho: "P", quantidade: 2 }], com_embalagem: false }, ctx(base), t());
+    expect(p.modelo).toBe("Baby look");
+    expect(p.cpv_centavos).toBe(2 * (2200 + 948));
+    const lancs = [...base, p];
+    const v = montarVenda({ produto_id: "devil", modelo: "Baby look", preco_unitario_centavos: 9990, quantidade: 1, forma_pagamento: "pix", cor: "Branca", tamanho: "P" }, ctx(lancs), t());
+    expect(v.modo_venda).toBe("pronta");
+    expect(v.cpv_centavos).toBe(2200 + 948);
+    const est = calcularEstoque([...lancs, v]);
+    expect(quantidade(est, { item: "lisa", cor: "Branca", tamanho: "P" })).toBe(5);
+    expect(quantidade(est, { item: "lisa", modelo: "Baby look", cor: "Branca", tamanho: "P" })).toBe(2);
+    expect(quantidade(est, { item: "pronta", produto_id: "devil", modelo: "Baby look", cor: "Branca", tamanho: "P" })).toBe(1);
+    // A tradicional da mesma estampa não tem pronta → sob demanda
+    const v2 = montarVenda({ produto_id: "devil", preco_unitario_centavos: 9990, quantidade: 1, forma_pagamento: "pix", cor: "Branca", tamanho: "P" }, ctx([...lancs, v]), t());
+    expect(v2.modo_venda).toBe("sob_demanda");
+    expect(v2.cpv_centavos).toBe(1750 + 948 + 100);
+  });
+});

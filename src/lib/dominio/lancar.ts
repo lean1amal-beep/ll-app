@@ -9,6 +9,7 @@ import {
 } from "./estoque";
 import {
   CATEGORIA_ESTOQUE,
+  modeloNormal,
   type CategoriaGasto,
   type Config,
   type FormaPagamento,
@@ -44,6 +45,7 @@ export function novoLancamento(
     categoria: null,
     produto_id: null,
     descricao: null,
+    modelo: null,
     cor: null,
     tamanho: null,
     quantidade: 1,
@@ -89,6 +91,8 @@ export function taxaDe(config: Config, forma: FormaPagamento | null, valor: numb
 export interface EntradaVenda extends Extras {
   produto_id: string | null;
   descricao?: string | null;
+  /** Modelo da camisa (Tradicional, Baby look). */
+  modelo?: string | null;
   /** Preço por peça */
   preco_unitario_centavos: number;
   quantidade: number;
@@ -102,9 +106,9 @@ export interface EntradaVenda extends Extras {
   cpv_manual_centavos?: number | null;
 }
 
-export function modoSugerido(ctx: Contexto, produto_id: string | null, cor?: string | null, tamanho?: string | null): ModoVenda {
+export function modoSugerido(ctx: Contexto, produto_id: string | null, cor?: string | null, tamanho?: string | null, modelo?: string | null): ModoVenda {
   if (!produto_id) return "sob_demanda";
-  const q = qtdEstoque(ctx.estoque, { item: "pronta", produto_id, cor, tamanho });
+  const q = qtdEstoque(ctx.estoque, { item: "pronta", produto_id, modelo, cor, tamanho });
   return q > 0 ? "pronta" : "sob_demanda";
 }
 
@@ -114,7 +118,8 @@ export function montarVenda(e: EntradaVenda, ctx: Contexto, agora = new Date()):
   const produto = ctx.produtos.find((p) => p.id === e.produto_id) ?? null;
   const cor = e.cor || produto?.cor_padrao || null;
   const tamanho = e.tamanho || null;
-  const modo = e.modo_venda ?? modoSugerido(ctx, e.produto_id, cor, tamanho);
+  const modelo = modeloNormal(e.modelo);
+  const modo = e.modo_venda ?? modoSugerido(ctx, e.produto_id, cor, tamanho, modelo);
   const movimentos: Movimento[] = [];
   let cpv = 0;
 
@@ -124,20 +129,20 @@ export function montarVenda(e: EntradaVenda, ctx: Contexto, agora = new Date()):
   } else if (produto && produto.custo_padrao_centavos != null && produto.tipo !== "camiseta") {
     // Boné, caneca: custo fixo. Se tiver pronta no estoque, baixa a pronta.
     if (modo === "pronta") {
-      const c = custoAtual(ctx.estoque, ctx.config, { item: "pronta", produto_id: produto.id, cor, tamanho });
-      movimentos.push({ item: "pronta", produto_id: produto.id, cor, tamanho, quantidade: -q, custo_unitario_centavos: c });
+      const c = custoAtual(ctx.estoque, ctx.config, { item: "pronta", produto_id: produto.id, modelo, cor, tamanho });
+      movimentos.push({ item: "pronta", produto_id: produto.id, modelo, cor, tamanho, quantidade: -q, custo_unitario_centavos: c });
       cpv = c * q;
     } else {
       cpv = produto.custo_padrao_centavos * q;
     }
   } else if (modo === "pronta" && produto) {
-    const c = custoAtual(ctx.estoque, ctx.config, { item: "pronta", produto_id: produto.id, cor, tamanho });
-    movimentos.push({ item: "pronta", produto_id: produto.id, cor, tamanho, quantidade: -q, custo_unitario_centavos: c });
+    const c = custoAtual(ctx.estoque, ctx.config, { item: "pronta", produto_id: produto.id, modelo, cor, tamanho });
+    movimentos.push({ item: "pronta", produto_id: produto.id, modelo, cor, tamanho, quantidade: -q, custo_unitario_centavos: c });
     cpv = c * q;
   } else if (produto || !e.descricao) {
     // Sob demanda: lisa + estampa + embalagem saem direto.
-    movimentos.push(...baixaPecaMontada(ctx, cor, tamanho, q));
-    cpv = custoPecaMontada(ctx.estoque, ctx.config, cor, tamanho) * q;
+    movimentos.push(...baixaPecaMontada(ctx, cor, tamanho, q, modelo));
+    cpv = custoPecaMontada(ctx.estoque, ctx.config, cor, tamanho, modelo) * q;
   }
   if (e.cpv_manual_centavos != null) cpv = e.cpv_manual_centavos;
 
@@ -151,6 +156,7 @@ export function montarVenda(e: EntradaVenda, ctx: Contexto, agora = new Date()):
       forma_pagamento: e.forma_pagamento,
       produto_id: e.produto_id,
       descricao: e.descricao ?? null,
+      modelo,
       cor,
       tamanho,
       quantidade: q,
@@ -163,10 +169,11 @@ export function montarVenda(e: EntradaVenda, ctx: Contexto, agora = new Date()):
 }
 
 /** Saídas de uma camiseta montada na hora (lisa + DTF + embalagem se ele controla embalagem). */
-export function baixaPecaMontada(ctx: Contexto, cor: string | null, tamanho: string | null, q: number): Movimento[] {
+export function baixaPecaMontada(ctx: Contexto, cor: string | null, tamanho: string | null, q: number, modelo: string | null = null): Movimento[] {
   const est = ctx.estoque;
+  modelo = modeloNormal(modelo);
   const out: Movimento[] = [
-    { item: "lisa", cor, tamanho, quantidade: -q, custo_unitario_centavos: custoAtual(est, ctx.config, { item: "lisa", cor, tamanho }) },
+    { item: "lisa", modelo, cor, tamanho, quantidade: -q, custo_unitario_centavos: custoAtual(est, ctx.config, { item: "lisa", modelo, cor, tamanho }) },
     { item: "dtf", quantidade: -q, custo_unitario_centavos: custoAtual(est, ctx.config, { item: "dtf" }) },
   ];
   if (controla(est, "embalagem"))
@@ -177,6 +184,7 @@ export function baixaPecaMontada(ctx: Contexto, cor: string | null, tamanho: str
 // ─── Gasto / investimento ────────────────────────────────────────────────────
 
 export interface LinhaGrade {
+  modelo?: string | null;
   cor?: string | null;
   tamanho?: string | null;
   quantidade: number;
@@ -204,6 +212,7 @@ export function montarGasto(e: EntradaGasto, agora = new Date()): Lancamento {
     linhas.forEach((g, i) => {
       movimentos.push({
         item,
+        modelo: item === "lisa" ? modeloNormal(g.modelo) : null,
         cor: item === "lisa" ? g.cor ?? null : null,
         tamanho: item === "lisa" ? g.tamanho ?? null : null,
         quantidade: g.quantidade,
@@ -232,6 +241,7 @@ export function montarGasto(e: EntradaGasto, agora = new Date()): Lancamento {
 
 export interface EntradaPrensagem extends Extras {
   produto_id: string;
+  modelo?: string | null;
   cor: string | null;
   /** Quantidade por tamanho */
   tamanhos: { tamanho: string | null; quantidade: number }[];
@@ -245,12 +255,13 @@ export function montarPrensagem(e: EntradaPrensagem, ctx: Contexto, agora = new 
   let custoTotal = 0;
   const dtf = custoAtual(est, ctx.config, { item: "dtf" });
   const emb = e.com_embalagem ? custoAtual(est, ctx.config, { item: "embalagem" }) : 0;
+  const modelo = modeloNormal(e.modelo);
   for (const t of e.tamanhos) {
     if (t.quantidade <= 0) continue;
-    const lisa = custoAtual(est, ctx.config, { item: "lisa", cor: e.cor, tamanho: t.tamanho });
+    const lisa = custoAtual(est, ctx.config, { item: "lisa", modelo, cor: e.cor, tamanho: t.tamanho });
     const custo = lisa + dtf + emb;
-    movimentos.push({ item: "lisa", cor: e.cor, tamanho: t.tamanho, quantidade: -t.quantidade, custo_unitario_centavos: lisa });
-    movimentos.push({ item: "pronta", produto_id: e.produto_id, cor: e.cor, tamanho: t.tamanho, quantidade: t.quantidade, custo_unitario_centavos: custo });
+    movimentos.push({ item: "lisa", modelo, cor: e.cor, tamanho: t.tamanho, quantidade: -t.quantidade, custo_unitario_centavos: lisa });
+    movimentos.push({ item: "pronta", produto_id: e.produto_id, modelo, cor: e.cor, tamanho: t.tamanho, quantidade: t.quantidade, custo_unitario_centavos: custo });
     total += t.quantidade;
     custoTotal += custo * t.quantidade;
   }
@@ -264,6 +275,7 @@ export function montarPrensagem(e: EntradaPrensagem, ctx: Contexto, agora = new 
       ...limparExtras(e),
       tipo: "prensagem",
       produto_id: e.produto_id,
+      modelo,
       cor: e.cor,
       tamanho: tamanhos.length === 1 ? tamanhos[0].tamanho : null,
       quantidade: total,
@@ -278,8 +290,8 @@ export function montarPrensagem(e: EntradaPrensagem, ctx: Contexto, agora = new 
 
 /** O que saiu: um item do estoque, ou "peca" = camiseta montada (lisa + DTF). */
 export type AlvoSaida =
-  | { item: ItemEstoque; produto_id?: string | null; cor?: string | null; tamanho?: string | null }
-  | { item: "peca"; cor?: string | null; tamanho?: string | null };
+  | { item: ItemEstoque; produto_id?: string | null; modelo?: string | null; cor?: string | null; tamanho?: string | null }
+  | { item: "peca"; modelo?: string | null; cor?: string | null; tamanho?: string | null };
 
 export interface EntradaSaida extends Extras {
   tipo: "perda" | "retirada_produto";
@@ -293,22 +305,23 @@ export function montarSaida(e: EntradaSaida, ctx: Contexto, agora = new Date()):
   let movimentos: Movimento[] = [];
   const a = e.alvo;
   if (a.item === "peca") {
-    movimentos = baixaPecaMontada(ctx, a.cor ?? null, a.tamanho ?? null, q);
+    movimentos = baixaPecaMontada(ctx, a.cor ?? null, a.tamanho ?? null, q, a.modelo ?? null);
   } else {
     const c = custoAtual(ctx.estoque, ctx.config, a);
-    movimentos = [{ item: a.item, produto_id: a.produto_id ?? null, cor: a.cor ?? null, tamanho: a.tamanho ?? null, quantidade: -q, custo_unitario_centavos: c }];
+    movimentos = [{ item: a.item, produto_id: a.produto_id ?? null, modelo: modeloNormal(a.modelo), cor: a.cor ?? null, tamanho: a.tamanho ?? null, quantidade: -q, custo_unitario_centavos: c }];
   }
   let cpv = movimentos.reduce((s, m) => s + -m.quantidade * m.custo_unitario_centavos, 0);
   if (e.historico) {
     // Antes do app: só registra o custo estimado, sem mexer no estoque.
     movimentos = [];
-    if (a.item === "peca" || a.item === "pronta") cpv = custoPecaMontada(ctx.estoque, ctx.config, a.cor ?? null, a.tamanho ?? null) * q;
+    if (a.item === "peca" || a.item === "pronta") cpv = custoPecaMontada(ctx.estoque, ctx.config, a.cor ?? null, a.tamanho ?? null, a.modelo ?? null) * q;
   }
   return novoLancamento(
     {
       ...limparExtras(e),
       tipo: e.tipo,
       produto_id: "produto_id" in a ? a.produto_id ?? null : null,
+      modelo: modeloNormal(a.modelo),
       cor: a.cor ?? null,
       tamanho: a.tamanho ?? null,
       categoria: a.item,
@@ -326,6 +339,7 @@ export function montarSaida(e: EntradaSaida, ctx: Contexto, agora = new Date()):
 export interface Contagem {
   item: ItemEstoque;
   produto_id?: string | null;
+  modelo?: string | null;
   cor?: string | null;
   tamanho?: string | null;
   /** Quantidade real contada */
@@ -349,6 +363,7 @@ export function montarContagem(contagens: Contagem[], ctx: Contexto, extras: Ext
     movimentos.push({
       item: c.item,
       produto_id: c.produto_id ?? null,
+      modelo: modeloNormal(c.modelo),
       cor: c.cor ?? null,
       tamanho: c.tamanho ?? null,
       quantidade: delta,

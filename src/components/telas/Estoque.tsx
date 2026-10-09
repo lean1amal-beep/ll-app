@@ -2,9 +2,9 @@
 import { useMemo, useState } from "react";
 import { salvarConfig, salvarLancamento, type Dados } from "@/lib/dados";
 import { formatarReais } from "@/lib/dominio/dinheiro";
-import { quantidade as qtdEstoque, valorEstoque, valorPosicao, type PosicaoEstoque } from "@/lib/dominio/estoque";
+import { chaveEstoque, quantidade as qtdEstoque, valorEstoque, valorPosicao, type PosicaoEstoque } from "@/lib/dominio/estoque";
 import { montarContagem } from "@/lib/dominio/lancar";
-import type { ItemEstoque } from "@/lib/dominio/tipos";
+import { nomesModelos, tamanhosDo, type ItemEstoque } from "@/lib/dominio/tipos";
 import { ir } from "@/lib/rota";
 import { Botao, Chips, Contador, Vazio, cx, useAviso } from "../ui";
 
@@ -13,6 +13,7 @@ type Aba = "lisas" | "prontas" | "insumos";
 interface Alvo {
   item: ItemEstoque;
   produto_id?: string | null;
+  modelo?: string | null;
   cor?: string | null;
   tamanho?: string | null;
   nome: string;
@@ -38,7 +39,8 @@ export default function Estoque({ dados }: { dados: Dados }) {
 
   const celula = (a: Alvo, rotulo: string) => {
     const q = qtdEstoque(est, a);
-    const baixo = minimo[a.item] > 0 && q < minimo[a.item];
+    // Só avisa em posições que já tiveram movimento (tamanho que ele nunca teve não fica vermelho).
+    const baixo = minimo[a.item] > 0 && q < minimo[a.item] && est.has(chaveEstoque(a));
     return (
       <button
         key={rotulo}
@@ -84,14 +86,21 @@ export default function Estoque({ dados }: { dados: Dados }) {
       {aba === "lisas" && (
         <div className="space-y-5">
           <div className="text-sm text-cinza">Valor: {formatarReais(valorDe("lisa"))} · toque num número para corrigir</div>
-          {dados.config.cores.map((cor) => (
-            <div key={cor}>
-              <div className="font-bold mb-2">{cor}</div>
-              <div className="grid grid-cols-3 gap-2">
-                {dados.config.tamanhos.map((t) => celula({ item: "lisa", cor, tamanho: t, nome: `Lisa ${cor} ${t}` }, t))}
+          {nomesModelos(dados.config).flatMap((modelo, i) =>
+            dados.config.cores.map((cor) => (
+              <div key={`${modelo}${cor}`}>
+                <div className="font-bold mb-2">
+                  {cor}
+                  {nomesModelos(dados.config).length > 1 && <span className="font-normal text-cinza"> · {modelo}</span>}
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {tamanhosDo(dados.config, modelo).map((t) =>
+                    celula({ item: "lisa", modelo: i === 0 ? null : modelo, cor, tamanho: t, nome: `Lisa ${i === 0 ? "" : modelo + " "}${cor} ${t}` }, t),
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            )),
+          )}
         </div>
       )}
 
@@ -113,11 +122,15 @@ export default function Estoque({ dados }: { dados: Dados }) {
                 </div>
                 <div className="grid grid-cols-3 gap-2">
                   {posicoes
-                    .sort((a, b) => dados.config.tamanhos.indexOf(a.tamanho ?? "") - dados.config.tamanhos.indexOf(b.tamanho ?? ""))
+                    .sort(
+                      (a, b) =>
+                        (a.modelo ?? "").localeCompare(b.modelo ?? "") ||
+                        tamanhosDo(dados.config, a.modelo).indexOf(a.tamanho ?? "") - tamanhosDo(dados.config, b.modelo).indexOf(b.tamanho ?? ""),
+                    )
                     .map((p) =>
                       celula(
-                        { item: "pronta", produto_id: pid, cor: p.cor, tamanho: p.tamanho, nome: `${prod?.nome ?? ""} ${p.cor ?? ""} ${p.tamanho ?? ""}` },
-                        [p.cor && dados.config.cores.length > 1 ? p.cor.slice(0, 3) : null, p.tamanho ?? "s/ tam."].filter(Boolean).join(" "),
+                        { item: "pronta", produto_id: pid, modelo: p.modelo, cor: p.cor, tamanho: p.tamanho, nome: `${prod?.nome ?? ""} ${p.modelo ?? ""} ${p.cor ?? ""} ${p.tamanho ?? ""}` },
+                        [siglaModelo(p.modelo), p.cor && dados.config.cores.length > 1 ? p.cor.slice(0, 3) : null, p.tamanho ?? "s/ tam."].filter(Boolean).join(" "),
                       ),
                     )}
                 </div>
@@ -202,4 +215,13 @@ function AlertaMinimo({ dados }: { dados: Dados }) {
       </div>
     </details>
   );
+}
+
+/** "Baby look" → "BL" (para caber na célula). */
+export function siglaModelo(m: string | null | undefined) {
+  if (!m) return null;
+  return m
+    .split(/\s+/)
+    .map((p) => p[0]?.toUpperCase())
+    .join("");
 }

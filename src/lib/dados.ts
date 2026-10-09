@@ -38,6 +38,8 @@ export function mesclarConfig(dados?: Partial<Config> | null): Config {
     custos_referencia: { ...CONFIG_PADRAO.custos_referencia, ...d.custos_referencia },
     estoque_minimo: { ...CONFIG_PADRAO.estoque_minimo, ...d.estoque_minimo },
     acerto: { ...CONFIG_PADRAO.acerto, ...d.acerto },
+    // Config antiga sem modelos: Tradicional (tamanhos atuais) + Baby look.
+    modelos: d.modelos?.length ? d.modelos : CONFIG_PADRAO.modelos.map((m, i) => (i === 0 ? { ...m, tamanhos: d.tamanhos ?? m.tamanhos } : m)),
   };
 }
 

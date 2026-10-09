@@ -25,7 +25,7 @@ export function descrever(l: Lancamento, dados: Dados): string {
   const prod = dados.produtos.find((p) => p.id === l.produto_id)?.nome;
   switch (l.tipo) {
     case "venda":
-      return `${l.quantidade > 1 ? `${l.quantidade}× ` : ""}${prod ?? l.descricao ?? "Venda"}${l.tamanho ? ` ${l.tamanho}` : ""}`;
+      return `${l.quantidade > 1 ? `${l.quantidade}× ` : ""}${prod ?? l.descricao ?? "Venda"}${l.modelo ? ` ${l.modelo}` : ""}${l.tamanho ? ` ${l.tamanho}` : ""}`;
     case "gasto":
     case "investimento":
       return l.descricao || NOMES_CATEGORIA[l.categoria as CategoriaGasto] || NOMES_TIPO[l.tipo];
@@ -279,6 +279,7 @@ export function DetalheLancamento({ dados, id }: { dados: Dados; id: string }) {
         {[
           ["Pagamento", l.forma_pagamento && NOMES_PAGAMENTO[l.forma_pagamento]],
           ["Produto", prod?.nome],
+          ["Modelo", l.modelo],
           ["Cor / tamanho", [l.cor, l.tamanho].filter(Boolean).join(" ")],
           ["Peça", l.modo_venda === "pronta" ? "Já estava pronta" : l.modo_venda === "sob_demanda" ? "Sob demanda" : null],
           ["Canal", l.canal],
@@ -300,7 +301,7 @@ export function DetalheLancamento({ dados, id }: { dados: Dados; id: string }) {
           {l.movimentos.map((m, i) => (
             <Linha
               key={i}
-              rotulo={`${m.item === "pronta" ? dados.produtos.find((p) => p.id === m.produto_id)?.nome ?? "Pronta" : m.item === "lisa" ? "Lisa" : m.item === "dtf" ? "DTF" : "Embalagem"} ${[m.cor, m.tamanho].filter(Boolean).join(" ")}`}
+              rotulo={`${m.item === "pronta" ? dados.produtos.find((p) => p.id === m.produto_id)?.nome ?? "Pronta" : m.item === "lisa" ? "Lisa" : m.item === "dtf" ? "DTF" : "Embalagem"} ${[m.modelo, m.cor, m.tamanho].filter(Boolean).join(" ")}`}
               valor={`${m.quantidade > 0 ? "+" : ""}${m.quantidade} × ${formatarReais(m.custo_unitario_centavos)}`}
             />
           ))}

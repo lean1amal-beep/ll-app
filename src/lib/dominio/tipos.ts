@@ -41,6 +41,8 @@ export const CATEGORIA_ESTOQUE: Partial<Record<CategoriaGasto, ItemEstoque>> = {
 export interface Movimento {
   item: ItemEstoque;
   produto_id?: string | null;
+  /** Modelo da camisa (ex.: "Baby look"). Vazio = Tradicional. */
+  modelo?: string | null;
   cor?: string | null;
   tamanho?: string | null;
   /** + entra no estoque, − sai */
@@ -63,6 +65,8 @@ export interface Lancamento {
   produto_id: string | null;
   /** Nome livre (venda avulsa, origem do aporte, etc.) */
   descricao: string | null;
+  /** Modelo da camisa (ex.: "Baby look"). Vazio = Tradicional. */
+  modelo: string | null;
   cor: string | null;
   tamanho: string | null;
   quantidade: number;
@@ -142,7 +146,10 @@ export interface Config {
   tabela_personalizada: { ate: number | null; preco_centavos: number }[];
   estoque_minimo: Record<ItemEstoque, number>;
   cores: string[];
+  /** Tamanhos do modelo Tradicional (masculino). */
   tamanhos: string[];
+  /** Modelos de camisa. O primeiro é sempre o Tradicional (usa `tamanhos`). */
+  modelos: { nome: string; tamanhos: string[] }[];
   lembrete_ativo: boolean;
   /** Assistente de acerto inicial: passo atual e passos já lançados. */
   acerto: { passo: number; concluido: boolean; feitos: number[] };
@@ -176,9 +183,32 @@ export const CONFIG_PADRAO: Config = {
   estoque_minimo: { lisa: 2, pronta: 0, dtf: 5, embalagem: 5 },
   cores: ["Preta", "Branca"],
   tamanhos: ["P", "M", "G", "GG", "G2", "XGG"],
+  modelos: [
+    { nome: "Tradicional", tamanhos: ["P", "M", "G", "GG", "G2", "XGG"] },
+    { nome: "Baby look", tamanhos: ["P", "M", "G", "GG"] },
+  ],
   lembrete_ativo: false,
   acerto: { passo: 0, concluido: false, feitos: [] },
 };
+
+export const MODELO_PADRAO = "Tradicional";
+
+/** "Tradicional" e vazio são o mesmo modelo. */
+export function modeloNormal(m: string | null | undefined): string | null {
+  return m && m !== MODELO_PADRAO ? m : null;
+}
+
+/** Tamanhos de um modelo (Tradicional usa `config.tamanhos`). */
+export function tamanhosDo(config: Config, modelo: string | null | undefined): string[] {
+  const m = modeloNormal(modelo);
+  if (!m) return config.tamanhos;
+  return config.modelos.find((x) => x.nome === m)?.tamanhos ?? config.tamanhos;
+}
+
+/** Nomes dos modelos, Tradicional primeiro. */
+export function nomesModelos(config: Config): string[] {
+  return [MODELO_PADRAO, ...config.modelos.map((m) => m.nome).filter((n) => n !== MODELO_PADRAO)];
+}
 
 export const NOMES_TIPO: Record<TipoLancamento, string> = {
   venda: "Venda",

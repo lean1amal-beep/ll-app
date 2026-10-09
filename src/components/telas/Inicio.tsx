@@ -78,7 +78,7 @@ export default function Inicio({ dados }: { dados: Dados }) {
                 <b>Estoque baixo:</b>{" "}
                 {alertas
                   .slice(0, 5)
-                  .map((a) => `${nomeItem(a.item, dados.produtos.find((p) => p.id === a.produto_id)?.nome)} ${[a.cor, a.tamanho].filter(Boolean).join(" ")} (${a.quantidade})`.trim())
+                  .map((a) => `${nomeItem(a.item, dados.produtos.find((p) => p.id === a.produto_id)?.nome)} ${[a.modelo, a.cor, a.tamanho].filter(Boolean).join(" ")} (${a.quantidade})`.trim())
                   .join(", ")}
                 {alertas.length > 5 && ` e mais ${alertas.length - 5}`}
               </span>

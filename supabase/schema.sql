@@ -23,6 +23,7 @@ create table if not exists public.lancamentos (
   categoria text,
   produto_id uuid,
   descricao text,
+  modelo text,                               -- modelo da camisa (Baby look...); vazio = Tradicional
   cor text,
   tamanho text,
   quantidade integer not null default 1,
@@ -42,6 +43,9 @@ create table if not exists public.lancamentos (
   deleted_at timestamptz,
   sincronizado_em timestamptz not null default clock_timestamp()
 );
+-- Atualizações em bancos já criados (pode rodar de novo sem problema)
+alter table public.lancamentos add column if not exists modelo text;
+
 create index if not exists lancamentos_sync on public.lancamentos (user_id, sincronizado_em);
 
 -- ─── Produtos (catálogo) ───────────────────────────────────────────────────

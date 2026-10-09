@@ -1,9 +1,10 @@
-import type { Config, ItemEstoque, Lancamento, Movimento } from "./tipos";
+import { modeloNormal, type Config, type ItemEstoque, type Lancamento, type Movimento } from "./tipos";
 
 export interface PosicaoEstoque {
   chave: string;
   item: ItemEstoque;
   produto_id: string | null;
+  modelo: string | null;
   cor: string | null;
   tamanho: string | null;
   quantidade: number;
@@ -13,20 +14,23 @@ export interface PosicaoEstoque {
 
 export type Estoque = Map<string, PosicaoEstoque>;
 
+type Alvo = Pick<Movimento, "item" | "produto_id" | "modelo" | "cor" | "tamanho">;
+
 /** Normaliza o movimento: DTF e embalagem são genéricos; lisa não tem produto. */
-export function normalizar(m: Pick<Movimento, "item" | "produto_id" | "cor" | "tamanho">) {
+export function normalizar(m: Alvo) {
   const generico = m.item === "dtf" || m.item === "embalagem";
   return {
     item: m.item,
     produto_id: m.item === "pronta" ? m.produto_id ?? null : null,
+    modelo: generico ? null : modeloNormal(m.modelo),
     cor: generico ? null : m.cor || null,
     tamanho: generico ? null : m.tamanho || null,
   };
 }
 
-export function chaveEstoque(m: Pick<Movimento, "item" | "produto_id" | "cor" | "tamanho">): string {
+export function chaveEstoque(m: Alvo): string {
   const n = normalizar(m);
-  return [n.item, n.produto_id ?? "", n.cor ?? "", n.tamanho ?? ""].join("|");
+  return [n.item, n.produto_id ?? "", n.cor ?? "", n.tamanho ?? "", n.modelo ?? ""].join("|");
 }
 
 /** Ordena lançamentos ativos por data (e criação) para reprocessar o estoque. */
@@ -72,7 +76,7 @@ export function valorEstoque(est: Estoque): number {
   return v;
 }
 
-export function quantidade(est: Estoque, m: Pick<Movimento, "item" | "produto_id" | "cor" | "tamanho">): number {
+export function quantidade(est: Estoque, m: Alvo): number {
   return est.get(chaveEstoque(m))?.quantidade ?? 0;
 }
 
@@ -105,15 +109,19 @@ export function custoReferencia(config: Config, item: ItemEstoque): number {
 export function custoAtual(
   est: Estoque,
   config: Config,
-  m: Pick<Movimento, "item" | "produto_id" | "cor" | "tamanho">,
+  m: Alvo,
 ): number {
   const exata = est.get(chaveEstoque(m));
   if (exata && exata.custo_medio > 0) return exata.custo_medio;
+  // Prefere a média do mesmo modelo (baby look custa diferente da tradicional).
+  const modelo = m.item === "lisa" || m.item === "pronta" ? modeloNormal(m.modelo) : null;
+  const temModelo = [...est.values()].some((p) => p.item === m.item && p.modelo === modelo && p.custo_medio > 0);
   let q = 0;
   let v = 0;
   let ultimo = 0;
   for (const p of est.values()) {
     if (p.item !== m.item) continue;
+    if (temModelo && p.modelo !== modelo) continue;
     if (m.item === "pronta" && m.produto_id && p.produto_id !== m.produto_id) continue;
     if (p.custo_medio > 0) ultimo = p.custo_medio;
     if (p.quantidade > 0) {
@@ -123,14 +131,14 @@ export function custoAtual(
   }
   if (q > 0 && v > 0) return Math.round(v / q);
   if (ultimo > 0) return ultimo;
-  if (m.item === "pronta") return custoPecaMontada(est, config, m.cor ?? null, m.tamanho ?? null);
+  if (m.item === "pronta") return custoPecaMontada(est, config, m.cor ?? null, m.tamanho ?? null, m.modelo ?? null);
   return custoReferencia(config, m.item);
 }
 
 /** Custo de uma camiseta montada na hora: lisa + 1 estampa DTF + embalagem. */
-export function custoPecaMontada(est: Estoque, config: Config, cor: string | null, tamanho: string | null): number {
+export function custoPecaMontada(est: Estoque, config: Config, cor: string | null, tamanho: string | null, modelo: string | null = null): number {
   return (
-    custoAtual(est, config, { item: "lisa", cor, tamanho }) +
+    custoAtual(est, config, { item: "lisa", modelo, cor, tamanho }) +
     custoAtual(est, config, { item: "dtf" }) +
     custoAtual(est, config, { item: "embalagem" })
   );
@@ -140,6 +148,7 @@ export interface AlertaEstoque {
   chave: string;
   item: ItemEstoque;
   produto_id: string | null;
+  modelo: string | null;
   cor: string | null;
   tamanho: string | null;
   quantidade: number;

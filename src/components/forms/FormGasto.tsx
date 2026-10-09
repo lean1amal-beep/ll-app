@@ -2,11 +2,11 @@
 import { useState } from "react";
 import { formatarReais } from "@/lib/dominio/dinheiro";
 import { montarGasto, type LinhaGrade } from "@/lib/dominio/lancar";
-import { CATEGORIA_ESTOQUE, NOMES_CATEGORIA, type CategoriaGasto, type PagoPor } from "@/lib/dominio/tipos";
+import { CATEGORIA_ESTOQUE, NOMES_CATEGORIA, tamanhosDo, type CategoriaGasto, type PagoPor } from "@/lib/dominio/tipos";
 import { fechar } from "@/lib/rota";
 import { Alternar, Botao, CampoDinheiro, Campo, Chips, Contador, Folha, Texto } from "../ui";
 import { Campanha } from "./FormVenda";
-import { CampoFoto, MaisOpcoes, useExtras, useSalvar, type PropsForm } from "./comum";
+import { CampoFoto, EscolhaModelo, MaisOpcoes, useExtras, useSalvar, type PropsForm } from "./comum";
 
 const CATEGORIAS = Object.keys(NOMES_CATEGORIA) as CategoriaGasto[];
 
@@ -20,6 +20,7 @@ export default function FormGasto({ dados, original }: PropsForm) {
   const [descricao, setDescricao] = useState(original?.descricao ?? "");
   const [contaFixa, setContaFixa] = useState<string | null>(original?.conta_fixa ?? null);
   const [foto, setFoto] = useState<Blob | null>(null);
+  const [modelo, setModelo] = useState<string | null>(original?.movimentos[0]?.modelo ?? original?.modelo ?? null);
   const [grade, setGrade] = useState<Record<string, number>>(() => {
     const g: Record<string, number> = {};
     for (const m of original?.movimentos ?? []) g[`${m.cor ?? ""}|${m.tamanho ?? ""}`] = m.quantidade;
@@ -30,7 +31,7 @@ export default function FormGasto({ dados, original }: PropsForm) {
     .filter(([, q]) => q > 0)
     .map(([k, q]) => {
       const [cor, tamanho] = k.split("|");
-      return { cor: cor || null, tamanho: tamanho || null, quantidade: q };
+      return { modelo, cor: cor || null, tamanho: tamanho || null, quantidade: q };
     });
   const totalPecas = linhas.reduce((s, l) => s + l.quantidade, 0);
   const precisaGrade = !!item && !extras.historico;
@@ -87,12 +88,21 @@ export default function FormGasto({ dados, original }: PropsForm) {
 
       {precisaGrade && item === "lisa" && (
         <Campo rotulo="Quantas camisas" dica={totalPecas > 0 && valor ? `${totalPecas} camisas · ${formatarReais(Math.round(valor / totalPecas))} cada` : undefined}>
+          <EscolhaModelo
+            config={dados.config}
+            rotulo="Modelo (se comprou dos dois, lance separado)"
+            valor={modelo}
+            aoMudar={(m) => {
+              setModelo(m);
+              setGrade({});
+            }}
+          />
           <div className="space-y-4">
             {dados.config.cores.map((cor) => (
               <div key={cor}>
                 <div className="font-medium mb-1">{cor}</div>
                 <div className="grid grid-cols-3 gap-x-2 gap-y-3">
-                  {dados.config.tamanhos.map((t) => {
+                  {tamanhosDo(dados.config, modelo).map((t) => {
                     const k = `${cor}|${t}`;
                     return (
                       <div key={t} className="flex flex-col items-center">

@@ -3,11 +3,11 @@ import { useMemo, useState } from "react";
 import { formatarReais } from "@/lib/dominio/dinheiro";
 import { quantidade as qtdEstoque } from "@/lib/dominio/estoque";
 import { modoSugerido, montarVenda } from "@/lib/dominio/lancar";
-import { CANAIS, type FormaPagamento, type ModoVenda, type Produto } from "@/lib/dominio/tipos";
+import { CANAIS, tamanhosDo, type FormaPagamento, type ModoVenda, type Produto } from "@/lib/dominio/tipos";
 import { fechar } from "@/lib/rota";
 import { Botao, CampoDinheiro, Campo, Chips, Contador, Folha, Texto, cx } from "../ui";
 import { MiniProduto } from "../Produto";
-import { MaisOpcoes, useCtx, useExtras, useSalvar, type PropsForm } from "./comum";
+import { EscolhaModelo, MaisOpcoes, useCtx, useExtras, useSalvar, type PropsForm } from "./comum";
 
 type Pagamento = "pix" | "cartao" | "dinheiro";
 
@@ -27,6 +27,7 @@ export default function FormVenda({ dados, original }: PropsForm) {
   );
   const [cartao, setCartao] = useState<FormaPagamento>(original && ["credito", "debito", "link"].includes(original.forma_pagamento ?? "") ? original.forma_pagamento! : "credito");
   const [tamanho, setTamanho] = useState<string | null>(original?.tamanho ?? null);
+  const [modelo, setModelo] = useState<string | null>(original?.modelo ?? null);
   const [cor, setCor] = useState<string | null>(original?.cor ?? null);
   const evento = dados.campanhas.find((c) => c.id === extras.campanha_id)?.tipo === "evento";
   const [canal, setCanal] = useState<string | null>(original ? original.canal : evento ? "Show" : null);
@@ -42,7 +43,7 @@ export default function FormVenda({ dados, original }: PropsForm) {
 
   const forma: FormaPagamento | null = pag === "cartao" ? cartao : pag;
   const corEfetiva = cor ?? produto?.cor_padrao ?? null;
-  const modoEfetivo = modo ?? modoSugerido(ctx, produtoId ?? null, corEfetiva, tamanho);
+  const modoEfetivo = modo ?? modoSugerido(ctx, produtoId ?? null, corEfetiva, tamanho, modelo);
 
   const previa = useMemo(() => {
     if (preco == null || !forma || produtoId === undefined) return null;
@@ -54,6 +55,7 @@ export default function FormVenda({ dados, original }: PropsForm) {
         preco_unitario_centavos: preco,
         quantidade: qtd,
         forma_pagamento: forma,
+        modelo,
         cor: corEfetiva,
         tamanho,
         canal,
@@ -62,7 +64,7 @@ export default function FormVenda({ dados, original }: PropsForm) {
       },
       ctx,
     );
-  }, [preco, forma, produtoId, avulsa, qtd, corEfetiva, tamanho, canal, modo, cpvManual, ctx, campos]);
+  }, [preco, forma, produtoId, avulsa, qtd, modelo, corEfetiva, tamanho, canal, modo, cpvManual, ctx, campos]);
 
   // Passo 1: escolher o produto
   if (produtoId === undefined) {
@@ -91,7 +93,7 @@ export default function FormVenda({ dados, original }: PropsForm) {
     );
   }
 
-  const prontasPorTamanho = (t: string) => (produtoId ? qtdEstoque(ctx.estoque, { item: "pronta", produto_id: produtoId, cor: corEfetiva, tamanho: t }) : 0);
+  const prontasPorTamanho = (t: string) => (produtoId ? qtdEstoque(ctx.estoque, { item: "pronta", produto_id: produtoId, modelo, cor: corEfetiva, tamanho: t }) : 0);
   const recebe = previa ? previa.valor_centavos - previa.taxa_centavos : 0;
 
   return (
@@ -173,10 +175,21 @@ export default function FormVenda({ dados, original }: PropsForm) {
       </Campo>
 
       {(!produto || produto.tipo === "camiseta") && (
+        <EscolhaModelo
+          config={dados.config}
+          valor={modelo}
+          aoMudar={(m) => {
+            setModelo(m);
+            if (tamanho && !tamanhosDo(dados.config, m).includes(tamanho)) setTamanho(null);
+          }}
+        />
+      )}
+
+      {(!produto || produto.tipo === "camiseta") && (
         <Campo rotulo="Tamanho (opcional)">
           <Chips
             permitirVazio
-            opcoes={dados.config.tamanhos.map((t) => {
+            opcoes={tamanhosDo(dados.config, modelo).map((t) => {
               const n = prontasPorTamanho(t);
               return { valor: t, rotulo: n > 0 ? <>{t} <span className="opacity-60">·{n}</span></> : t };
             })}

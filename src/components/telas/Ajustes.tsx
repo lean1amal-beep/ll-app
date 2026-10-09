@@ -123,13 +123,30 @@ export default function Ajustes({ dados, email, aoSair }: { dados: Dados; email:
       </Secao>
 
       {/* Cores e tamanhos */}
-      <Secao titulo="Cores e tamanhos">
+      <Secao titulo="Cores, modelos e tamanhos">
         <Campo rotulo="Cores (separe por vírgula)">
           <Texto defaultValue={c.cores.join(", ")} onBlur={(e) => salvar((x) => ({ ...x, cores: lista(e.target.value, x.cores) }))} />
         </Campo>
-        <Campo rotulo="Tamanhos (separe por vírgula)">
+        <Campo rotulo="Tamanhos da Tradicional (separe por vírgula)">
           <Texto defaultValue={c.tamanhos.join(", ")} onBlur={(e) => salvar((x) => ({ ...x, tamanhos: lista(e.target.value, x.tamanhos) }))} />
         </Campo>
+        {c.modelos
+          .filter((m) => m.nome !== "Tradicional")
+          .map((m) => (
+            <Campo key={m.nome} rotulo={`Tamanhos da ${m.nome}`}>
+              <div className="flex gap-2 items-center">
+                <Texto
+                  defaultValue={m.tamanhos.join(", ")}
+                  className="flex-1"
+                  onBlur={(e) => salvar((x) => ({ ...x, modelos: x.modelos.map((y) => (y.nome === m.nome ? { ...y, tamanhos: lista(e.target.value, y.tamanhos) } : y)) }))}
+                />
+                <button type="button" className="w-10 h-12 text-xl" aria-label={`remover ${m.nome}`} onClick={() => salvar((x) => ({ ...x, modelos: x.modelos.filter((y) => y.nome !== m.nome) }))}>
+                  ×
+                </button>
+              </div>
+            </Campo>
+          ))}
+        <NovoModelo aoCriar={(nome) => salvar((x) => (x.modelos.some((y) => y.nome === nome) ? x : { ...x, modelos: [...x.modelos, { nome, tamanhos: ["P", "M", "G", "GG"] }] }))} />
       </Secao>
 
       {/* Lembrete */}
@@ -169,6 +186,25 @@ export default function Ajustes({ dados, email, aoSair }: { dados: Dados; email:
       </Secao>
 
       <p className="text-center text-xs text-cinza pb-4">LL Caixa v1 · LL Original</p>
+    </div>
+  );
+}
+
+function NovoModelo({ aoCriar }: { aoCriar: (nome: string) => void }) {
+  const [nome, setNome] = useState("");
+  return (
+    <div className="flex gap-2">
+      <Texto value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Novo modelo (ex.: Oversized)" className="flex-1" />
+      <Botao
+        variante="secundario"
+        disabled={!nome.trim()}
+        onClick={() => {
+          aoCriar(nome.trim());
+          setNome("");
+        }}
+      >
+        Criar
+      </Botao>
     </div>
   );
 }

@@ -7,7 +7,8 @@ import { fechar } from "@/lib/rota";
 import { MiniProduto } from "../Produto";
 import { Alternar, Botao, Campo, Chips, Contador, Folha, cx } from "../ui";
 import { Campanha } from "./FormVenda";
-import { MaisOpcoes, useCtx, useExtras, useSalvar, type PropsForm } from "./comum";
+import { EscolhaModelo, MaisOpcoes, useCtx, useExtras, useSalvar, type PropsForm } from "./comum";
+import { tamanhosDo } from "@/lib/dominio/tipos";
 
 export default function FormPrensar({ dados, original }: PropsForm) {
   const ctx = useCtx(dados, original);
@@ -18,6 +19,7 @@ export default function FormPrensar({ dados, original }: PropsForm) {
   const produto = dados.produtos.find((p) => p.id === produtoId);
   const [cor, setCor] = useState<string | null>(original?.cor ?? null);
   const corEfetiva = cor ?? produto?.cor_padrao ?? dados.config.cores[0] ?? null;
+  const [modelo, setModelo] = useState<string | null>(original?.modelo ?? null);
   const [qtds, setQtds] = useState<Record<string, number>>(() => {
     const q: Record<string, number> = {};
     for (const m of original?.movimentos ?? []) if (m.item === "pronta") q[m.tamanho ?? ""] = m.quantidade;
@@ -33,6 +35,7 @@ export default function FormPrensar({ dados, original }: PropsForm) {
           {
             ...campos,
             produto_id: produtoId,
+            modelo,
             cor: corEfetiva,
             tamanhos: Object.entries(qtds).map(([tamanho, quantidade]) => ({ tamanho: tamanho || null, quantidade })),
             com_embalagem: embalagem,
@@ -79,14 +82,23 @@ export default function FormPrensar({ dados, original }: PropsForm) {
         </div>
       </Campo>
 
+      <EscolhaModelo
+        config={dados.config}
+        valor={modelo}
+        aoMudar={(m) => {
+          setModelo(m);
+          setQtds({});
+        }}
+      />
+
       <Campo rotulo="Cor da camisa">
         <Chips opcoes={dados.config.cores.map((c) => ({ valor: c, rotulo: c }))} valor={corEfetiva ?? undefined} aoMudar={setCor} />
       </Campo>
 
       <Campo rotulo="Quantas de cada tamanho" dica={`Estampas DTF no estoque: ${dtf}${total > dtf ? " (vai ficar negativo)" : ""}`}>
         <div className="grid grid-cols-3 gap-x-2 gap-y-3">
-          {dados.config.tamanhos.map((t) => {
-            const lisas = qtdEstoque(ctx.estoque, { item: "lisa", cor: corEfetiva, tamanho: t });
+          {tamanhosDo(dados.config, modelo).map((t) => {
+            const lisas = qtdEstoque(ctx.estoque, { item: "lisa", modelo, cor: corEfetiva, tamanho: t });
             return (
               <div key={t} className="flex flex-col items-center">
                 <span className="text-sm">

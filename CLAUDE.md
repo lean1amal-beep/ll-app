@@ -258,6 +258,7 @@ Importação automática da Nuvemshop · TikTok Shop/lives · frete · clientes 
 - [x] Leandro: criar conta no Supabase (projeto `vbowrlwivuoqurpnunks`, tabelas criadas, confirmação de e-mail desligada)
 - [x] App no ar na Vercel: https://ll-app-31l2.vercel.app (variáveis do Supabase configuradas)
 - [ ] Depois de criar a conta: desligar "Allow new users to sign up" no Supabase
+- [ ] Leandro: rodar no SQL Editor `alter table public.lancamentos add column if not exists modelo text;` (sem isso o sync dá erro)
 - [ ] Lembrete: gerar chaves VAPID + CRON_SECRET + SUPABASE_SERVICE_ROLE_KEY na Vercel
 - [ ] Leandro: mandar prints dos produtos da Nuvemshop (nomes, preços, fotos)
 - [ ] Leandro: ver se Mercado Pago e Nubank exportam extrato em CSV
@@ -310,6 +311,8 @@ Importação automática da Nuvemshop · TikTok Shop/lives · frete · clientes 
 15. Taxas MP padrão: débito 1,99%, crédito 4,98%, link 4,99% (**confirmar**).
 16. **Lembrete de campanha:** cron diário às 9h BRT (`0 12 * * *`) avisa no dia seguinte ao `fim` de uma campanha do tipo evento.
 17. Ícone: monograma LL redesenhado em vetor (`public/icons/icone.svg`) a partir do logo oficial que o Leandro mandou (09/10). Se ele mandar o arquivo original (PNG/SVG), trocar.
+18. **Modelos de camisa (09/10, pedido do Leandro: "camisas femininas"):** `modelo` é mais uma dimensão do estoque de lisas e prontas. Padrão: **Tradicional** (P–XGG, usa `config.tamanhos`) e **Baby look** (P, M, G, GG), editáveis em Ajustes, onde dá pra criar outros (ex.: Oversized). Vazio/"Tradicional" = mesmo modelo, então os dados antigos continuam valendo. Uma compra de lisas é de um modelo só (custo certo). Coluna nova `lancamentos.modelo` (o `schema.sql` tem o `alter table ... add column if not exists`).
+19. Alerta de estoque mínimo só aparece em posições que já tiveram movimento (tamanho que ele nunca teve não fica vermelho).
 
 ### Próximos passos
 - [ ] Leandro: configurar Supabase + Vercel seguindo `docs/CONFIGURAR.md` (com Claude guiando).

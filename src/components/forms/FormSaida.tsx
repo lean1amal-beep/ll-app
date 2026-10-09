@@ -3,10 +3,10 @@ import { useState } from "react";
 import { formatarReais } from "@/lib/dominio/dinheiro";
 import { quantidade as qtdEstoque } from "@/lib/dominio/estoque";
 import { montarSaida, montarSimples, type AlvoSaida } from "@/lib/dominio/lancar";
-import type { Lancamento } from "@/lib/dominio/tipos";
+import { tamanhosDo, type Lancamento } from "@/lib/dominio/tipos";
 import { fechar } from "@/lib/rota";
 import { Botao, CampoDinheiro, Campo, Chips, Contador, Folha, Texto } from "../ui";
-import { MaisOpcoes, useCtx, useExtras, useSalvar, type PropsForm } from "./comum";
+import { EscolhaModelo, MaisOpcoes, useCtx, useExtras, useSalvar, type PropsForm } from "./comum";
 
 type Alvo = "peca" | "pronta" | "lisa" | "dtf" | "embalagem";
 
@@ -22,6 +22,7 @@ export default function FormSaida({ dados, original, tipo }: PropsForm & { tipo:
   const [produtoId, setProdutoId] = useState<string | null>(original?.produto_id ?? null);
   const [cor, setCor] = useState<string | null>(original?.cor ?? dados.config.cores[0] ?? null);
   const [tamanho, setTamanho] = useState<string | null>(original?.tamanho ?? null);
+  const [modelo, setModelo] = useState<string | null>(original?.modelo ?? null);
   const [qtd, setQtd] = useState(original?.quantidade ?? 1);
   const [motivo, setMotivo] = useState<string | null>(original?.descricao && MOTIVOS.includes(original.descricao) ? original.descricao : null);
   const [descricao, setDescricao] = useState(original?.descricao && !MOTIVOS.includes(original.descricao) ? original.descricao : "");
@@ -38,8 +39,8 @@ export default function FormSaida({ dados, original, tipo }: PropsForm & { tipo:
     }
   } else {
     let a: AlvoSaida | null = null;
-    if (alvo === "pronta") a = produtoId ? { item: "pronta", produto_id: produtoId, cor, tamanho } : null;
-    else if (alvo === "peca" || alvo === "lisa") a = { item: alvo, cor, tamanho };
+    if (alvo === "pronta") a = produtoId ? { item: "pronta", produto_id: produtoId, modelo, cor, tamanho } : null;
+    else if (alvo === "peca" || alvo === "lisa") a = { item: alvo, modelo, cor, tamanho };
     else a = { item: alvo };
     if (a) {
       previa = montarSaida(
@@ -116,7 +117,7 @@ export default function FormSaida({ dados, original, tipo }: PropsForm & { tipo:
               <div className="space-y-2">
                 {prontas.map((p) => {
                   const prod = dados.produtos.find((x) => x.id === p.produto_id);
-                  const sel = produtoId === p.produto_id && cor === p.cor && tamanho === p.tamanho;
+                  const sel = produtoId === p.produto_id && cor === p.cor && tamanho === p.tamanho && (modelo ?? null) === p.modelo;
                   return (
                     <button
                       key={p.chave}
@@ -125,11 +126,12 @@ export default function FormSaida({ dados, original, tipo }: PropsForm & { tipo:
                         setProdutoId(p.produto_id);
                         setCor(p.cor);
                         setTamanho(p.tamanho);
+                        setModelo(p.modelo);
                       }}
                       className={`w-full flex justify-between items-center min-h-12 px-4 rounded-xl border-2 ${sel ? "border-tinta bg-tinta text-papel" : "border-linha"}`}
                     >
                       <span className="text-left">
-                        {prod?.nome ?? "?"} <span className="opacity-60">{[p.cor, p.tamanho].filter(Boolean).join(" ")}</span>
+                        {prod?.nome ?? "?"} <span className="opacity-60">{[p.modelo, p.cor, p.tamanho].filter(Boolean).join(" ")}</span>
                       </span>
                       <span className="num">{p.quantidade}</span>
                     </button>
@@ -141,13 +143,21 @@ export default function FormSaida({ dados, original, tipo }: PropsForm & { tipo:
 
           {precisaCorTamanho && alvo !== "pronta" && (
             <>
+              <EscolhaModelo
+                config={dados.config}
+                valor={modelo}
+                aoMudar={(m) => {
+                  setModelo(m);
+                  setTamanho(null);
+                }}
+              />
               <Campo rotulo="Cor">
                 <Chips opcoes={dados.config.cores.map((c) => ({ valor: c, rotulo: c }))} valor={cor ?? undefined} aoMudar={setCor} />
               </Campo>
               <Campo rotulo="Tamanho">
                 <Chips
                   permitirVazio
-                  opcoes={dados.config.tamanhos.map((t) => ({ valor: t, rotulo: `${t} ·${qtdEstoque(ctx.estoque, { item: "lisa", cor, tamanho: t })}` }))}
+                  opcoes={tamanhosDo(dados.config, modelo).map((t) => ({ valor: t, rotulo: `${t} ·${qtdEstoque(ctx.estoque, { item: "lisa", modelo, cor, tamanho: t })}` }))}
                   valor={tamanho ?? undefined}
                   aoMudar={setTamanho}
                 />

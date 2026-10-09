@@ -4,9 +4,9 @@ import { apagarLancamento, salvarLancamento, anexarComprovante, type Dados } fro
 import { dataParaISO, diaBR } from "@/lib/dominio/datas";
 import { calcularEstoque } from "@/lib/dominio/estoque";
 import type { Contexto } from "@/lib/dominio/lancar";
-import type { Confianca, Lancamento } from "@/lib/dominio/tipos";
+import { MODELO_PADRAO, modeloNormal, nomesModelos, type Config, type Confianca, type Lancamento } from "@/lib/dominio/tipos";
 import { fechar } from "@/lib/rota";
-import { Alternar, Campo, Recolhivel, Texto, estiloInput, useAviso } from "../ui";
+import { Alternar, Campo, Chips, Recolhivel, Texto, estiloInput, useAviso } from "../ui";
 
 export interface PropsForm {
   dados: Dados;
@@ -174,4 +174,15 @@ async function desenhar(arquivo: Blob, lado: number): Promise<HTMLCanvasElement>
   canvas.height = Math.round(bmp.height * escala);
   canvas.getContext("2d")!.drawImage(bmp, 0, 0, canvas.width, canvas.height);
   return canvas;
+}
+
+/** Escolha do modelo da camisa (Tradicional / Baby look). Some se só houver um modelo. */
+export function EscolhaModelo({ config, valor, aoMudar, rotulo = "Modelo" }: { config: Config; valor: string | null; aoMudar: (m: string | null) => void; rotulo?: string }) {
+  const nomes = nomesModelos(config);
+  if (nomes.length < 2) return null;
+  return (
+    <Campo rotulo={rotulo}>
+      <Chips opcoes={nomes.map((n) => ({ valor: n, rotulo: n }))} valor={modeloNormal(valor) ?? MODELO_PADRAO} aoMudar={(n) => aoMudar(modeloNormal(n))} />
+    </Campo>
+  );
 }
