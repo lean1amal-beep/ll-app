@@ -249,6 +249,7 @@ Prioridade se faltar tempo: **lançar venda offline + estoque de prontas + campa
 ---
 
 ## 7. Fora da v1 (backlog)
+- **Assistente virtual dentro do app (pedido do Leandro em 09/10, combinado para depois de Campos 31/10):** chat que responde perguntas sobre os números ("quanto lucrei em Campos?", "se eu baixar pra R$ 79,90, quantas faltam pra pagar a prensa?") e lança coisas por texto/áudio ("vendi 2 Devil M no pix"), sempre pedindo confirmação antes de salvar. Rota de API na Vercel chamando a API da Anthropic, com resumo dos dados como contexto. Precisa de chave da API (console.anthropic.com, créditos pré-pagos, separado da assinatura do Claude) e de internet.
 Importação automática da Nuvemshop · TikTok Shop/lives · frete · clientes · metas · relatórios PDF · CNPJ/MEI · bonés e canecas com estoque próprio (o modelo já suporta).
 
 ---
@@ -257,7 +258,7 @@ Importação automática da Nuvemshop · TikTok Shop/lives · frete · clientes 
 - [x] Leandro: criar repositório no GitHub (`ll-app`)
 - [x] Leandro: criar conta no Supabase (projeto `vbowrlwivuoqurpnunks`, tabelas criadas, confirmação de e-mail desligada)
 - [x] App no ar na Vercel: https://ll-app-31l2.vercel.app (variáveis do Supabase configuradas)
-- [ ] Depois de criar a conta: desligar "Allow new users to sign up" no Supabase
+- [ ] Desligar "Allow new users to sign up" no Supabase (conta do Leandro já criada; em 09/10 ainda estava aberto)
 - [ ] Leandro: rodar no SQL Editor `alter table public.lancamentos add column if not exists modelo text;` (sem isso o sync dá erro)
 - [ ] Lembrete: gerar chaves VAPID + CRON_SECRET + SUPABASE_SERVICE_ROLE_KEY na Vercel
 - [ ] Leandro: mandar prints dos produtos da Nuvemshop (nomes, preços, fotos)
