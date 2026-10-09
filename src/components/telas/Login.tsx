@@ -56,7 +56,7 @@ export default function Login({ aoEntrar }: { aoEntrar: (email: string) => void 
             <Texto type="password" autoComplete={criando ? "new-password" : "current-password"} value={senha} onChange={(e) => setSenha(e.target.value)} required minLength={6} />
           </Campo>
           {msg && <p className="text-sm bg-white/10 rounded-xl p-3">{msg}</p>}
-          <Botao type="submit" className="w-full bg-papel text-tinta text-lg" disabled={carregando}>
+          <Botao type="submit" variante="claro" className="w-full text-lg" disabled={carregando}>
             {carregando ? "Aguarde…" : criando ? "Criar conta" : "Entrar"}
           </Botao>
         </form>

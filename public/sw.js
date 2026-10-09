@@ -1,6 +1,6 @@
 // Service worker do LL Caixa: deixa o app abrir sem internet e recebe o lembrete.
 // O app é uma página só ("/"), então basta guardar essa página e os arquivos dela.
-const CACHE = "ll-caixa-v1";
+const CACHE = "ll-caixa-v2";
 const ESTATICOS = /\/_next\/static\//;
 
 async function guardarPagina(resposta) {

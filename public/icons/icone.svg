@@ -1,19 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <rect width="512" height="512" fill="#000"/>
-  <g fill="#fff">
-    <!-- primeiro L: haste + disco de vinil no pé -->
-    <rect x="120" y="120" width="44" height="210"/>
-    <circle cx="190" cy="350" r="72"/>
-    <!-- segundo L -->
-    <rect x="286" y="120" width="44" height="272"/>
-    <rect x="286" y="348" width="120" height="44"/>
+  <defs>
+    <clipPath id="l1"><path d="M92 112h158v188h42v100H118V142H92z"/></clipPath>
+  </defs>
+  <!-- 1º L: serifa no topo, pé avança por baixo do 2º L -->
+  <path d="M92 112h158v188h42v100H118V142H92z" fill="#fff"/>
+  <!-- meio disco de vinil no 1º L -->
+  <g clip-path="url(#l1)" fill="none" stroke="#000">
+    <path stroke-width="7" d="M250 146a102 102 0 0 0 0 204"/>
+    <path stroke-width="6" d="M250 164a84 84 0 0 0 0 168"/>
+    <path stroke-width="5" d="M250 182a66 66 0 0 0 0 132"/>
+    <path stroke-width="4" d="M250 198a50 50 0 0 0 0 100"/>
   </g>
-  <!-- sulcos e selo do disco -->
-  <g fill="none" stroke="#000" stroke-width="3">
-    <circle cx="190" cy="350" r="60"/>
-    <circle cx="190" cy="350" r="50"/>
-    <circle cx="190" cy="350" r="40"/>
-  </g>
-  <circle cx="190" cy="350" r="22" fill="#000"/>
-  <circle cx="190" cy="350" r="6" fill="#fff"/>
+  <path d="M250 222a26 26 0 0 0 0 52z" fill="#000"/>
+  <circle cx="243" cy="248" r="6" fill="#fff"/>
+  <!-- 2º L -->
+  <path d="M264 112h78v158h84v80H306v-64h-42z" fill="#fff"/>
 </svg>

@@ -47,7 +47,7 @@ export function Icone({ nome, className = "w-6 h-6" }: { nome: keyof typeof cami
 
 // ─── Botões ──────────────────────────────────────────────────────────────────
 
-type Variante = "primario" | "secundario" | "fantasma" | "perigo";
+type Variante = "primario" | "secundario" | "fantasma" | "perigo" | "claro";
 
 export function Botao({
   children,
@@ -65,6 +65,7 @@ export function Botao({
         variante === "secundario" && "border-2 border-tinta bg-papel text-tinta",
         variante === "fantasma" && "text-tinta underline underline-offset-4",
         variante === "perigo" && "border-2 border-alerta text-alerta bg-papel",
+        variante === "claro" && "bg-papel text-tinta",
         className,
       )}
     >
