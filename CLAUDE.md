@@ -110,7 +110,7 @@ nº 619 25/03 0,5 m R$ 40 · nº 68 10/04 1,24 m × 65 = R$ 80,60 · nº 328 13/
 |---|---|---|---|
 | abr/2026 | 11 camisas em show **em Minas** (confirmado 09/10): 3×R$ 50, 1×R$ 60, 4×R$ 70, 3×R$ 80 | **R$ 730** | confirmado |
 | ~fim mar/2026 | 3 camisas a R$ 50 para duas amigas (lembrado em 09/10) | **R$ 150** | estimado |
-| Rock in Rio (data a confirmar, set/2026?) | Amiga 1: 1 camisa R$ 60 · Amiga 2: 2 camisas R$ 120 · Amiga 3: 2 camisas por R$ 75 no total (uma deu defeito e foi de graça) | **5 camisas, R$ 255** | estimado (comprovante Pix da amiga 3 a confirmar) |
+| Rock in Rio, set/2026 (confirmado) | Amiga 1: 1 camisa R$ 60 · Amiga 2: 2 camisas R$ 120 · Amiga 3: 2 camisas por R$ 75 no total (uma deu defeito e foi de graça) | **5 camisas, R$ 255** | estimado (comprovante Pix da amiga 3 a confirmar) |
 | out/2026 (recente) | 1 boné pra amigo (venda-teste) | **R$ 40** (custo R$ 30) | confirmado |
 | 2026 | Merch Setfire, Bignew, 3 baby looks, pedido de 10 personalizadas (~R$ 450) | ? | levantar |
 
