@@ -385,3 +385,27 @@ describe("modelos de camisa (baby look)", () => {
     expect(v2.cpv_centavos).toBe(1750 + 948 + 100);
   });
 });
+
+describe("lista de peças prontas", () => {
+  it("lê a lista do jeito que o Leandro escreve", async () => {
+    const { lerListaProntas } = await import("@/lib/dominio/lista");
+    const texto = `M/P - Slipknot ALL HOPE IS GONE
+
+G/GG- LP Hybrid Theory
+
+GG - System of a down (logo peito)
+2 GG - Linkin Park
+P e M: Teste
+XX - Errado
+sem tamanho`;
+    const r = lerListaProntas(texto, ["P", "M", "G", "GG", "G2", "XGG"]);
+    expect(r.linhas).toEqual([
+      { nome: "Slipknot ALL HOPE IS GONE", tamanhos: ["M", "P"] },
+      { nome: "LP Hybrid Theory", tamanhos: ["G", "GG"] },
+      { nome: "System of a down (logo peito)", tamanhos: ["GG"] },
+      { nome: "Linkin Park", tamanhos: ["GG", "GG"] },
+      { nome: "Teste", tamanhos: ["P", "M"] },
+    ]);
+    expect(r.erros).toEqual(["XX - Errado", "sem tamanho"]);
+  });
+});

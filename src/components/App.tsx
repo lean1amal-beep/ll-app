@@ -9,6 +9,7 @@ import { contarPendentes, iniciarSyncAutomatico, limparLocal, sincronizar } from
 import FormContagem from "./forms/FormContagem";
 import { FormAjusteSaldo, FormAporte, FormPagamentoPai } from "./forms/FormDinheiro";
 import FormGasto from "./forms/FormGasto";
+import FormListaProntas from "./forms/FormListaProntas";
 import FormPrensar from "./forms/FormPrensar";
 import FormSaida from "./forms/FormSaida";
 import FormVenda from "./forms/FormVenda";
@@ -183,6 +184,8 @@ function Sobreposta({ dados, partes }: { dados: Dados; partes: string[] }) {
         return <FormAjusteSaldo {...props} />;
       case "contagem":
         return <FormContagem {...props} />;
+      case "prontas":
+        return <FormListaProntas {...props} />;
     }
   }
   if (p0 === "lanc" && p1) return <DetalheLancamento dados={dados} id={p1} />;

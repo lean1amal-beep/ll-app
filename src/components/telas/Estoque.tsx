@@ -111,6 +111,9 @@ export default function Estoque({ dados }: { dados: Dados }) {
           ) : (
             <div className="text-sm text-cinza">Valor: {formatarReais(valorDe("pronta"))}</div>
           )}
+          <Botao variante="secundario" className="w-full" onClick={() => ir("novo/prontas")}>
+            Adicionar prontas que já tenho (lista)
+          </Botao>
           {prontas.map(([pid, posicoes]) => {
             const prod = dados.produtos.find((p) => p.id === pid);
             const total = posicoes.reduce((s, p) => s + p.quantidade, 0);

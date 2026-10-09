@@ -313,6 +313,7 @@ Importação automática da Nuvemshop · TikTok Shop/lives · frete · clientes 
 17. Ícone: monograma LL redesenhado em vetor (`public/icons/icone.svg`) a partir do logo oficial que o Leandro mandou (09/10). Se ele mandar o arquivo original (PNG/SVG), trocar.
 18. **Modelos de camisa (09/10, pedido do Leandro: "camisas femininas"):** `modelo` é mais uma dimensão do estoque de lisas e prontas. Padrão: **Tradicional** (P–XGG, usa `config.tamanhos`) e **Baby look** (P, M, G, GG), editáveis em Ajustes, onde dá pra criar outros (ex.: Oversized). Vazio/"Tradicional" = mesmo modelo, então os dados antigos continuam valendo. Uma compra de lisas é de um modelo só (custo certo). Coluna nova `lancamentos.modelo` (o `schema.sql` tem o `alter table ... add column if not exists`).
 19. Alerta de estoque mínimo só aparece em posições que já tiveram movimento (tamanho que ele nunca teve não fica vermelho).
+20. **Adicionar prontas por lista** (Estoque → Prontas → "Adicionar prontas que já tenho"): cola linhas `tamanhos - nome` (ex.: `M/P - Slipknot`, `2 GG - LP`), cria as estampas que faltam no catálogo (preço padrão R$ 89,90, editável) e soma as peças às prontas via `ajuste_estoque` (custo de referência, estimado). Parser em `src/lib/dominio/lista.ts`.
 
 ### Próximos passos
 - [ ] Leandro: configurar Supabase + Vercel seguindo `docs/CONFIGURAR.md` (com Claude guiando).
