@@ -108,9 +108,12 @@ nº 619 25/03 0,5 m R$ 40 · nº 68 10/04 1,24 m × 65 = R$ 80,60 · nº 328 13/
 ### 2.3 Vendas conhecidas
 | Data | Descrição | Valor | Status |
 |---|---|---|---|
-| abr/2026 | 11 camisas em show: 3×R$ 50, 1×R$ 60, 4×R$ 70, 3×R$ 80 | **R$ 730** | confirmado |
+| abr/2026 | 11 camisas em show **em Minas** (confirmado 09/10): 3×R$ 50, 1×R$ 60, 4×R$ 70, 3×R$ 80 | **R$ 730** | confirmado |
+| ~fim mar/2026 | 3 camisas a R$ 50 para duas amigas (lembrado em 09/10) | **R$ 150** | estimado |
 | out/2026 (recente) | 1 boné pra amigo (venda-teste) | **R$ 40** (custo R$ 30) | confirmado |
 | 2026 | Merch Setfire, Bignew, 3 baby looks, pedido de 10 personalizadas (~R$ 450) | ? | levantar |
+
+Conferência pelo estoque (09/10): 90 lisas compradas − ~22 lisas contadas − 9 prontas − ~6 uso próprio ≈ **53 saíram**; vendas conhecidas (11 + 3 + 10 personalizadas) = 24 → **~29 camisas sem explicação** (Setfire, Bignew, baby looks, presentes, testes/perdas). Perguntas abertas ao Leandro: Setfire, Bignew, pedido de 10 (R$ 450?), baby looks, presentes/testes, vendas soltas.
 
 ### 2.4 Uso próprio
 Leandro já pegou **~5 a 7 camisas** da marca pra uso pessoal (inclusive estampas de pedidos de clientes). Entra como **retirada em produto (estimado)**.
