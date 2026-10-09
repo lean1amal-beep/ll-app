@@ -330,6 +330,7 @@ Importação automática da Nuvemshop · TikTok Shop/lives · frete · clientes 
 19. Alerta de estoque mínimo só aparece em posições que já tiveram movimento (tamanho que ele nunca teve não fica vermelho).
 20. **Adicionar prontas por lista** (Estoque → Prontas → "Adicionar prontas que já tenho"): cola linhas `tamanhos - nome` (ex.: `M/P - Slipknot`, `2 GG - LP`), cria as estampas que faltam no catálogo (preço padrão R$ 89,90, editável) e soma as peças às prontas via `ajuste_estoque` (custo de referência, estimado). Parser em `src/lib/dominio/lista.ts`.
 21. **Compras reais aplicadas por um botão** (Início → "Atualizar com os pedidos reais de camisas"): `src/lib/dominio/compras.ts` tem os pedidos (Agostinho, Sol do Saara, Zimm, packs, DTF) e `planoComprasReais` lança os que faltam (compara pela descrição), apaga o chute "~35 camisas" e corrige o custo das lisas para R$ 20,83 (`montarCorrecaoCusto`). Também muda o custo de referência e marca o passo 6 do acerto como feito. Fica marcado em `config.migracoes` para não repetir. Padrão para futuras correções de dados que o Leandro pedir "faz pra mim": Claude não acessa a conta dele (RLS); cria um botão de um toque.
+22. **"Lucro este mês" ignora `ajuste_estoque`** (contagem, lista de prontas, correção de custo): eles continuam no resultado acumulado, mas não são lucro do mês. Leandro estranhou "lucro R$ 768" em outubro sem vendas.
 
 ### Próximos passos
 - [ ] Leandro: configurar Supabase + Vercel seguindo `docs/CONFIGURAR.md` (com Claude guiando).
