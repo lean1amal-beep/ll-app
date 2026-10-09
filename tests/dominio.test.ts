@@ -459,3 +459,14 @@ describe("lucro do mês", () => {
     expect(r.resultado).toBe(5 * 1750);
   });
 });
+
+describe("notas de DTF", () => {
+  it("lança as 5 notas do Atacadão (R$ 329) sem repetir", async () => {
+    const { MIGRACOES, planoMigracao } = await import("@/lib/dominio/compras");
+    const m = MIGRACOES.find((x) => x.id === "dtf_atacadao_2026_10")!;
+    const p = planoMigracao(m, [], ctx([]));
+    expect(p.criar.reduce((s, l) => s + l.valor_centavos, 0)).toBe(32900);
+    expect(p.correcao).toBeNull();
+    expect(planoMigracao(m, p.criar, ctx(p.criar)).criar).toEqual([]);
+  });
+});
