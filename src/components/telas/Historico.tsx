@@ -36,6 +36,7 @@ export function descrever(l: Lancamento, dados: Dados): string {
     case "retirada_produto":
       return `Peguei ${l.quantidade}× ${prod ?? nomeAlvo(l.categoria)}`;
     case "ajuste_estoque":
+      if (l.descricao) return l.descricao;
       return `Contagem de estoque (${l.movimentos.length} ${l.movimentos.length === 1 ? "item" : "itens"})`;
     default:
       return l.descricao ? `${NOMES_TIPO[l.tipo]}: ${l.descricao}` : NOMES_TIPO[l.tipo];

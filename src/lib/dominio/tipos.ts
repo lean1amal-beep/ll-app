@@ -151,6 +151,8 @@ export interface Config {
   /** Modelos de camisa. O primeiro é sempre o Tradicional (usa `tamanhos`). */
   modelos: { nome: string; tamanhos: string[] }[];
   lembrete_ativo: boolean;
+  /** Atualizações de dados já aplicadas (para não repetir). */
+  migracoes: string[];
   /** Assistente de acerto inicial: passo atual e passos já lançados. */
   acerto: { passo: number; concluido: boolean; feitos: number[] };
 }
@@ -188,6 +190,7 @@ export const CONFIG_PADRAO: Config = {
     { nome: "Baby look", tamanhos: ["P", "M", "G", "GG"] },
   ],
   lembrete_ativo: false,
+  migracoes: [],
   acerto: { passo: 0, concluido: false, feitos: [] },
 };
 

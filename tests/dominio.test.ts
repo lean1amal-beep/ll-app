@@ -432,3 +432,21 @@ describe("correção de custo", () => {
     expect(montarCorrecaoCusto("lisa", 2120, ctx([c, corr]))).toBeNull();
   });
 });
+
+describe("compras reais de camisas", () => {
+  it("lança os pedidos que faltam, apaga o chute de ~35 camisas e corrige o custo", async () => {
+    const { planoComprasReais } = await import("@/lib/dominio/compras");
+    const chute = montarGasto({ categoria: "camisa_lisa", valor_centavos: 61250, pago_por: "leandro", descricao: "~35 camisas lisas", historico: true }, t());
+    const packs = montarGasto({ categoria: "marketing", valor_centavos: 5000, pago_por: "leandro", descricao: "2 packs de imagens", historico: true }, t());
+    const estoque = montarContagem([{ item: "lisa", cor: "Preta", tamanho: "G", real: 5 }], ctx([]), {}, t())!;
+    const lancs = [chute, packs, estoque];
+    const p = planoComprasReais(lancs, ctx(lancs));
+    expect(p.apagar).toEqual([chute.id]);
+    expect(p.criar.some((l) => l.descricao === "2 packs de imagens")).toBe(false); // já existia
+    const camisas = p.criar.filter((l) => l.categoria === "camisa_lisa");
+    expect(camisas.reduce((s, l) => s + l.valor_centavos, 0)).toBe(187487);
+    expect(camisas.every((l) => l.historico && l.pago_por === "leandro" && l.movimentos.length === 0)).toBe(true);
+    expect(efeito(camisas[0])).toEqual({ caixa: 0, resultado: -camisas[0].valor_centavos });
+    expect(p.correcao!.movimentos.at(-1)!.custo_unitario_centavos).toBe(2083);
+  });
+});

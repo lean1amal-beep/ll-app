@@ -8,6 +8,7 @@ import { montarAjusteSaldo, montarContagem, montarGasto, montarSaida, montarSimp
 import { NOMES_CATEGORIA, type CategoriaGasto, type Lancamento } from "@/lib/dominio/tipos";
 import { fechar, ir } from "@/lib/rota";
 import { GradeContagem, paraContagens } from "../forms/FormContagem";
+import { GASTOS_INICIAIS } from "@/lib/dominio/compras";
 import { Alternar, Botao, CampoDinheiro, Campo, Contador, Folha, Linha, Texto, estiloInput, useAviso } from "../ui";
 
 const PASSOS = ["Saldo do Mercado Pago", "Prensa", "Kittl", "Vendas antigas", "Uso próprio", "Gastos antigos", "Estoque de hoje"];
@@ -22,14 +23,6 @@ interface LinhaVenda {
   estimado: boolean;
 }
 
-interface LinhaGasto {
-  incluir: boolean;
-  descricao: string;
-  categoria: CategoriaGasto;
-  valor: number | null;
-  dia: string;
-  estimado: boolean;
-}
 
 const VENDAS_INICIAIS: LinhaVenda[] = [
   { incluir: true, descricao: "Camisas show abril (R$ 50)", qtd: 3, preco: 5000, dia: "2026-04-15", custo: null, estimado: false },
@@ -43,19 +36,6 @@ const VENDAS_INICIAIS: LinhaVenda[] = [
   { incluir: false, descricao: "Baby looks", qtd: 3, preco: null, dia: "2026-09-15", custo: null, estimado: true },
 ];
 
-const GASTOS_INICIAIS: LinhaGasto[] = [
-  // Pedidos reais de camisas lisas (valores com frete/passagem, enviados pelo Leandro em 09/10)
-  { incluir: true, descricao: "20 camisas Sol do Saara (R$ 20 + R$ 15 metrô)", categoria: "camisa_lisa", valor: 41500, dia: "2026-04-13", estimado: false },
-  { incluir: true, descricao: "11 camisas Zimm #12223", categoria: "camisa_lisa", valor: 21834, dia: "2026-07-13", estimado: false },
-  { incluir: true, descricao: "12 camisas Zimm #12905", categoria: "camisa_lisa", valor: 25304, dia: "2026-08-05", estimado: false },
-  { incluir: true, descricao: "4 camisas Zimm #14459", categoria: "camisa_lisa", valor: 10259, dia: "2026-09-13", estimado: false },
-  { incluir: true, descricao: "3 camisas Zimm (plus size, feminina, 2ª linha)", categoria: "camisa_lisa", valor: 7090, dia: "2026-06-15", estimado: true },
-  { incluir: true, descricao: "40 camisas Agostinho (R$ 20 + R$ 15 metrô)", categoria: "camisa_lisa", valor: 81500, dia: "2026-03-13", estimado: false },
-  { incluir: true, descricao: "2 packs de imagens", categoria: "marketing", valor: 5000, dia: "2026-04-10", estimado: false },
-  { incluir: true, descricao: "DTF pedido de 10 camisas", categoria: "dtf", valor: 6000, dia: "2026-07-10", estimado: false },
-  { incluir: false, descricao: "Outros DTF (mar a out)", categoria: "dtf", valor: null, dia: "2026-06-15", estimado: true },
-  { incluir: false, descricao: "Filme DTF Mercado Livre", categoria: "dtf", valor: null, dia: "2026-10-01", estimado: true },
-];
 
 export default function Acerto({ dados }: { dados: Dados }) {
   const avisar = useAviso();

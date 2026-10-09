@@ -1,6 +1,7 @@
 "use client";
-import { useMemo, useSyncExternalStore } from "react";
-import type { Dados } from "@/lib/dados";
+import { useMemo, useState, useSyncExternalStore } from "react";
+import { apagarLancamento, salvarConfig, salvarLancamento, type Dados } from "@/lib/dados";
+import { CUSTO_REAL_LISA, MIGRACAO_COMPRAS, planoComprasReais } from "@/lib/dominio/compras";
 import { calcularResumo } from "@/lib/dominio/calculos";
 import { nomeMes } from "@/lib/dominio/datas";
 import { formatarReais } from "@/lib/dominio/dinheiro";
@@ -8,7 +9,7 @@ import { alertasEstoque } from "@/lib/dominio/estoque";
 import { ir } from "@/lib/rota";
 import { SUPABASE_ATIVO } from "@/lib/supabase";
 import { estadoSync, ouvirSync } from "@/lib/sync";
-import { Botao, Cartao, Icone, Linha, Reais, cx } from "../ui";
+import { Botao, Cartao, Icone, Linha, Reais, cx, useAviso } from "../ui";
 
 export default function Inicio({ dados }: { dados: Dados }) {
   const r = useMemo(() => calcularResumo(dados.lancamentos, dados.config), [dados]);
@@ -27,6 +28,8 @@ export default function Inicio({ dados }: { dados: Dados }) {
           <div className="opacity-70 text-sm">Saldo do Mercado Pago, prensa, vendas antigas e estoque. Leva uns 10 minutos.</div>
         </Cartao>
       )}
+
+      {!dados.config.migracoes.includes(MIGRACAO_COMPRAS) && <AplicarCompras dados={dados} />}
 
       {/* Livre pra gastar */}
       <Cartao className="border-tinta">
@@ -164,4 +167,43 @@ export function nomeItem(item: string, produto?: string) {
   if (item === "dtf") return "DTF";
   if (item === "embalagem") return "Embalagem";
   return produto ?? "Pronta";
+}
+
+/** Um toque: lança os pedidos reais de camisas, apaga o chute antigo e corrige o custo das lisas. */
+function AplicarCompras({ dados }: { dados: Dados }) {
+  const avisar = useAviso();
+  const [aplicando, setAplicando] = useState(false);
+  const plano = useMemo(() => planoComprasReais(dados.lancamentos, dados.ctx), [dados]);
+  const camisas = plano.criar.filter((l) => l.categoria === "camisa_lisa");
+  return (
+    <Cartao escuro>
+      <div className="font-bold text-lg">Atualizar com os pedidos reais de camisas</div>
+      <div className="opacity-70 text-sm space-y-1 pt-1">
+        <p>
+          Lança {plano.criar.length} compras antigas do seu bolso ({camisas.length} pedidos de camisas: Agostinho, Sol do Saara e Zimm), apaga o chute de “~35 camisas”
+          {plano.apagar.length ? "" : " (se existir)"} e corrige o custo das lisas no estoque para {formatarReais(CUSTO_REAL_LISA)}.
+        </p>
+      </div>
+      <Botao
+        variante="claro"
+        className="w-full mt-3"
+        disabled={aplicando}
+        onClick={async () => {
+          setAplicando(true);
+          for (const id of plano.apagar) await apagarLancamento(id);
+          for (const l of plano.criar) await salvarLancamento(l);
+          if (plano.correcao) await salvarLancamento(plano.correcao);
+          await salvarConfig((c) => ({
+            ...c,
+            custos_referencia: { ...c.custos_referencia, lisa_centavos: CUSTO_REAL_LISA },
+            acerto: { ...c.acerto, feitos: [...new Set([...c.acerto.feitos, 6])] },
+            migracoes: [...c.migracoes, MIGRACAO_COMPRAS],
+          }));
+          avisar("Custos atualizados ✓");
+        }}
+      >
+        {aplicando ? "Aplicando…" : "Aplicar"}
+      </Botao>
+    </Cartao>
+  );
 }
