@@ -192,7 +192,7 @@ function AplicarCompras({ dados, m }: { dados: Dados; m: Migracao }) {
           await salvarConfig((c) => ({
             ...c,
             custos_referencia: m.custoLisa ? { ...c.custos_referencia, lisa_centavos: m.custoLisa } : c.custos_referencia,
-            acerto: { ...c.acerto, feitos: [...new Set([...c.acerto.feitos, 6])] },
+            acerto: { ...c.acerto, feitos: [...new Set([...c.acerto.feitos, ...(m.passos ?? [6])])] },
             migracoes: [...c.migracoes, m.id],
           }));
           avisar(`${plano.criar.length} lançamentos ✓`);

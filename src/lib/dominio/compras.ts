@@ -1,5 +1,5 @@
 // Compras antigas conhecidas (pedidos reais enviados pelo Leandro em 09/10) e o plano para aplicá-las.
-import { montarCorrecaoCusto, montarGasto, type Contexto } from "./lancar";
+import { montarCorrecaoCusto, montarGasto, montarSaida, montarVenda, type Contexto } from "./lancar";
 import type { CategoriaGasto, Lancamento } from "./tipos";
 import { dataParaISO } from "./datas";
 
@@ -48,16 +48,64 @@ export const DTF_MERCADO_LIVRE: LinhaGasto[] = [
 export const CUSTO_REAL_LISA = 2083;
 
 /** Pacote de dados para aplicar com um toque (fica marcado em config.migracoes). */
+/** Venda antiga (antes do app): entra no resultado, sem mexer no caixa nem no estoque. */
+export interface LinhaVenda {
+  descricao: string;
+  dia: string;
+  qtd: number;
+  /** Preço por peça */
+  preco: number;
+  /** Custo total (0 para camisas: o custo já está nas compras antigas) */
+  custo?: number;
+  canal?: string | null;
+  estimado?: boolean;
+}
+
 export interface Migracao {
   id: string;
   titulo: string;
   resumo: string;
   linhas: LinhaGasto[];
-  /** Apaga gastos antigos cuja descrição bate com este padrão (chutes substituídos). */
+  vendas?: LinhaVenda[];
+  /** Retirada em produto (uso próprio + presentes), estimada */
+  retirada?: { qtd: number; dia: string; descricao: string };
+  /** Apaga lançamentos antigos ("antes do app") cuja descrição bate com este padrão (chutes substituídos). */
   substitui?: RegExp;
   /** Corrige o custo das lisas no estoque e o custo de referência. */
   custoLisa?: number;
+  /** Passos do acerto inicial que este pacote resolve (padrão: 6, gastos antigos). */
+  passos?: number[];
 }
+
+/** Vendas reconstruídas pelo extrato do Nubank + memória do Leandro (10/10). 47 camisas. */
+export const VENDAS_ANTIGAS: LinhaVenda[] = [
+  { descricao: "3 camisas para duas amigas (começo)", dia: "2026-03-30", qtd: 3, preco: 5000, estimado: true },
+  { descricao: "Minas 05/04 (4 camisas)", dia: "2026-04-05", qtd: 4, preco: 7000, canal: "Show" },
+  { descricao: "Ruan (2 camisas)", dia: "2026-04-09", qtd: 2, preco: 7000 },
+  { descricao: "Minas 19-20/04 a R$ 50", dia: "2026-04-19", qtd: 3, preco: 5000, canal: "Show" },
+  { descricao: "Minas 19-20/04 a R$ 60", dia: "2026-04-20", qtd: 1, preco: 6000, canal: "Show" },
+  { descricao: "Minas 19-20/04 a R$ 70", dia: "2026-04-20", qtd: 4, preco: 7000, canal: "Show" },
+  { descricao: "Minas 19-20/04 a R$ 80", dia: "2026-04-20", qtd: 2, preco: 8000, canal: "Show" },
+  { descricao: "Tallison (2 camisas)", dia: "2026-05-01", qtd: 2, preco: 5500 },
+  { descricao: "Pablo (1 camisa)", dia: "2026-05-02", qtd: 1, preco: 8000 },
+  { descricao: "Livia (1 camisa)", dia: "2026-05-12", qtd: 1, preco: 5000 },
+  { descricao: "Lívia (2 camisas)", dia: "2026-05-16", qtd: 2, preco: 5000 },
+  { descricao: "Leandro Lima (1 camisa)", dia: "2026-06-03", qtd: 1, preco: 5000 },
+  { descricao: "Igor (1 camisa)", dia: "2026-07-02", qtd: 1, preco: 6000 },
+  { descricao: "Dárison (5 camisas)", dia: "2026-07-25", qtd: 5, preco: 4000 },
+  { descricao: "Rock in Rio: Paula (2 camisas)", dia: "2026-08-31", qtd: 2, preco: 6000, canal: "Show" },
+  { descricao: "Rock in Rio: Mariana (1 camisa)", dia: "2026-09-02", qtd: 1, preco: 6000, canal: "Show" },
+  { descricao: "Igor: boné", dia: "2026-09-09", qtd: 1, preco: 4000, custo: 3000 },
+  { descricao: "Igor: 3 personalizadas femininas", dia: "2026-09-14", qtd: 3, preco: 6000 },
+  { descricao: "Rock in Rio: Maria Luisa (2 camisas, 1 com defeito)", dia: "2026-09-16", qtd: 2, preco: 3750, canal: "Show" },
+  { descricao: "Natanael (2 camisas)", dia: "2026-09-22", qtd: 2, preco: 6000, estimado: true },
+  { descricao: "5 camisas a preço de custo (faltam R$ 60 a receber)", dia: "2026-10-06", qtd: 5, preco: 4000 },
+];
+
+/** As 3 femininas compradas na loja para o pedido do Igor (R$ 40 cada). */
+export const FEMININAS_IGOR: LinhaGasto[] = [
+  { incluir: true, descricao: "3 femininas compradas na loja (pedido do Igor)", categoria: "camisa_lisa", valor: 12000, dia: "2026-09-12", estimado: false },
+];
 
 export const MIGRACOES: Migracao[] = [
   {
@@ -73,6 +121,16 @@ export const MIGRACOES: Migracao[] = [
     titulo: "Lançar as notas de DTF (Atacadão da Impressão)",
     resumo: "5 notas de mar a set, R$ 329,00 do seu bolso. A de 02/07 (R$ 60) já estava lançada.",
     linhas: DTF_ATACADAO,
+  },
+  {
+    id: "vendas_antigas_2026_10",
+    titulo: "Lançar as vendas antigas (fev a out)",
+    resumo: "47 camisas e 1 boné, R$ 2.665 (conferido com o extrato do Nubank), as 3 femininas do Igor (R$ 120) e 12 camisas retiradas (uso próprio e presentes). Substitui o que o acerto inicial tinha de abril, boné e uso próprio.",
+    linhas: FEMININAS_IGOR,
+    vendas: VENDAS_ANTIGAS,
+    retirada: { qtd: 12, dia: "2026-08-15", descricao: "Uso próprio e presentes (antes do app)" },
+    substitui: /show abril|venda-teste|uso próprio antes do app|^Camisas? show abril/i,
+    passos: [4, 5],
   },
   {
     id: "dtf_mercadolivre_2026_10",
@@ -114,7 +172,36 @@ export function planoMigracao(m: Migracao, lancamentos: Lancamento[], ctx: Conte
         data: dataParaISO(g.dia),
       }),
     );
-  const apagar = m.substitui ? ativos.filter((l) => l.tipo === "gasto" && l.historico && m.substitui!.test(l.descricao ?? "")).map((l) => l.id) : [];
+  const existeVenda = new Set(ativos.filter((l) => l.tipo === "venda").map((l) => normal(l.descricao)));
+  for (const v of m.vendas ?? []) {
+    if (existeVenda.has(normal(v.descricao))) continue;
+    criar.push(
+      montarVenda(
+        {
+          produto_id: null,
+          descricao: v.descricao,
+          preco_unitario_centavos: v.preco,
+          quantidade: v.qtd,
+          forma_pagamento: "pix",
+          historico: true,
+          cpv_manual_centavos: v.custo ?? 0,
+          canal: v.canal ?? null,
+          confianca: v.estimado ? "estimado" : "confirmado",
+          data: dataParaISO(v.dia),
+        },
+        ctx,
+      ),
+    );
+  }
+  if (m.retirada && !ativos.some((l) => l.tipo === "retirada_produto" && normal(l.descricao) === normal(m.retirada!.descricao))) {
+    const r = m.retirada;
+    criar.push(montarSaida({ tipo: "retirada_produto", alvo: { item: "peca" }, quantidade: r.qtd, historico: true, confianca: "estimado", descricao: r.descricao, data: dataParaISO(r.dia) }, ctx));
+  }
+  // Chutes antigos substituídos (só lançamentos "antes do app" que não são deste pacote)
+  const deste = new Set([...m.linhas.map((g) => normal(g.descricao)), ...(m.vendas ?? []).map((v) => normal(v.descricao)), normal(m.retirada?.descricao ?? null)]);
+  const apagar = m.substitui
+    ? ativos.filter((l) => l.historico && m.substitui!.test(l.descricao ?? "") && !deste.has(normal(l.descricao))).map((l) => l.id)
+    : [];
   const correcao = m.custoLisa ? montarCorrecaoCusto("lisa", m.custoLisa, ctx, { confianca: "estimado" }) : null;
   return { criar, apagar, correcao };
 }

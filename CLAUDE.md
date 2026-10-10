@@ -121,6 +121,8 @@ Confirmado pelo Leandro como **venda**: 01/05 R$ 110 · 02/05 R$ 80 · 12/05 R$ 
 **Não é venda:** Priscila (8), 19/06 R$ 127,97, 27/06 R$ 800, João Vittor (R$ 247), 28/09 R$ 150 (cachê).
 **Pendente:** Minas em 2 fins de semana pelo Pix (05/04: 4×70 = R$ 280; 19–20/04: 9 camisas = R$ 590 → 13 camisas/R$ 870 vs. memória 11/R$ 730)? · 09/04 R$ 140 · 20/04 R$ 60 · 26/04 R$ 66 · 03/06 R$ 50 · 02/07 R$ 60 (Igor) · 07/07 R$ 100 · 31/07 R$ 200 · 13/08 R$ 53,51 (serigrafia Vagalume) · 22/09 R$ 120 · quantidades por venda.
 
+**Fechado em 10/10** (pacote `vendas_antigas_2026_10` em `compras.ts`): Minas foram **2 fins de semana** (05/04: 4×70; 19–20/04: 3×50, 1×60, 4×70, 2×80) · Ruan 2 · Tallison 2 · Pablo 1 · Livia 1 · Lívia 2 · Leandro Lima 1 · Igor 1 (jul) · Dárison 5 (R$ 40) · Rock in Rio 5 · Igor set: boné R$ 40 (é o boné "venda-teste") + 3 personalizadas femininas a R$ 60 (femininas compradas na loja a R$ 40 cada = R$ 120) · Natanael 2 (qtd estimada) · out: 5 a R$ 40 (preço de custo; **faltam R$ 60 a receber** — quando entrar, não lançar como venda nova) · amigas do começo 3×50 (estimado). **Total 47 camisas + boné = R$ 2.665** → bate com as ~47 camisas que saíram pela conta do estoque. O "pedido de 10 personalizadas ~R$ 450" não apareceu separado (provavelmente era Dárison + Igor). Não sabe: 26/04 R$ 66.
+
 ### 2.4 Uso próprio
 Leandro já pegou **~5 a 7 camisas** da marca pra uso pessoal (inclusive estampas de pedidos de clientes). Entra como **retirada em produto (estimado)**.
 **Atualizado em 09/10:** são **~12 camisas retiradas** no total, entre uso próprio e presentes (ex.: uma de presente para a Camille). Lançar como uma retirada em produto de 12 (estimado), substituindo os ~6 do acerto.

@@ -470,3 +470,21 @@ describe("notas de DTF", () => {
     expect(planoMigracao(m, p.criar, ctx(p.criar)).criar).toEqual([]);
   });
 });
+
+describe("vendas antigas", () => {
+  it("lança 47 camisas + boné, substitui os chutes do acerto e não duplica", async () => {
+    const { MIGRACOES, planoMigracao } = await import("@/lib/dominio/compras");
+    const m = MIGRACOES.find((x) => x.id === "vendas_antigas_2026_10")!;
+    const chuteAbril = montarVenda({ produto_id: null, descricao: "Camisas show abril (R$ 70)", preco_unitario_centavos: 7000, quantidade: 4, forma_pagamento: "pix", historico: true }, ctx([]), t());
+    const chuteUso = montarSaida({ tipo: "retirada_produto", alvo: { item: "peca" }, quantidade: 6, historico: true, descricao: "Uso próprio antes do app" }, ctx([]), t());
+    const p = planoMigracao(m, [chuteAbril, chuteUso], ctx([]));
+    expect(p.apagar.sort()).toEqual([chuteAbril.id, chuteUso.id].sort());
+    const vendas = p.criar.filter((l) => l.tipo === "venda");
+    expect(vendas.reduce((s, l) => s + l.quantidade, 0)).toBe(48); // 47 camisas + 1 boné
+    expect(vendas.reduce((s, l) => s + l.valor_centavos, 0)).toBe(266500);
+    expect(vendas.every((l) => l.historico && efeito(l).caixa === 0 && l.movimentos.length === 0)).toBe(true);
+    expect(p.criar.filter((l) => l.tipo === "retirada_produto")[0].quantidade).toBe(12);
+    expect(p.criar.filter((l) => l.tipo === "gasto")[0].valor_centavos).toBe(12000);
+    expect(planoMigracao(m, p.criar, ctx(p.criar)).criar).toEqual([]);
+  });
+});
