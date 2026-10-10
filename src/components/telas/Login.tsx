@@ -8,7 +8,12 @@ export default function Login({ aoEntrar }: { aoEntrar: (email: string) => void 
   const [senha, setSenha] = useState("");
   const [criando, setCriando] = useState(false);
   const [esqueci, setEsqueci] = useState(false);
-  const [msg, setMsg] = useState<string | null>(null);
+  // Link de recuperação vencido ou já usado: o Supabase devolve o erro no endereço.
+  const [msg, setMsg] = useState<string | null>(() =>
+    typeof window !== "undefined" && /error_code=|error=access_denied/.test(window.location.hash + window.location.search)
+      ? "Esse link de troca de senha venceu ou já foi usado. Toque em “Esqueci minha senha” e peça outro."
+      : null,
+  );
   const [carregando, setCarregando] = useState(false);
 
   const enviar = async () => {
