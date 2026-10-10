@@ -1,9 +1,13 @@
 // Compras antigas conhecidas (pedidos reais enviados pelo Leandro em 09/10) e o plano para aplicá-las.
-import { montarCorrecaoCusto, montarGasto, montarSaida, montarVenda, type Contexto } from "./lancar";
-import type { CategoriaGasto, Lancamento } from "./tipos";
+import { montarAjusteSaldo, montarCorrecaoCusto, montarGasto, montarSaida, montarVenda, type Contexto } from "./lancar";
+import { calcularCaixa } from "./calculos";
+import type { CategoriaGasto, Lancamento, PagoPor } from "./tipos";
 import { dataParaISO } from "./datas";
 
 export interface LinhaGasto {
+  /** Padrão: "leandro" (do bolso). */
+  pago_por?: PagoPor;
+  eh_presente?: boolean;
   incluir: boolean;
   descricao: string;
   categoria: CategoriaGasto;
@@ -75,6 +79,8 @@ export interface Migracao {
   custoLisa?: number;
   /** Passos do acerto inicial que este pacote resolve (padrão: 6, gastos antigos). */
   passos?: number[];
+  /** Saldo real do Mercado Pago: gera ajuste de saldo se o caixa do app for diferente. */
+  saldoMP?: number;
 }
 
 /** Vendas reconstruídas pelo extrato do Nubank + memória do Leandro (10/10). 47 camisas. */
@@ -133,6 +139,17 @@ export const MIGRACOES: Migracao[] = [
     passos: [4, 5],
   },
   {
+    id: "acerto_prensa_kittl_2026_10",
+    titulo: "Fechar o acerto inicial",
+    resumo: "Prensa R$ 1.300 (paga pelo seu pai, vira dívida; estimado), Kittl plano anual básico R$ 300 (presente, sem dívida; estimado) e saldo do Mercado Pago zerado.",
+    linhas: [
+      { incluir: true, descricao: "Prensa térmica (12x)", categoria: "equipamento", valor: 130000, dia: "2026-02-15", estimado: true, pago_por: "pai" },
+      { incluir: true, descricao: "Kittl Pro (1 ano)", categoria: "equipamento", valor: 30000, dia: "2026-03-01", estimado: true, pago_por: "pai", eh_presente: true },
+    ],
+    saldoMP: 0,
+    passos: [1, 2, 3, 7],
+  },
+  {
     id: "dtf_mercadolivre_2026_10",
     titulo: "Lançar o DTF do Mercado Livre",
     resumo: "5 compras de abr a set, R$ 218,78 do seu bolso.",
@@ -165,7 +182,8 @@ export function planoMigracao(m: Migracao, lancamentos: Lancamento[], ctx: Conte
       montarGasto({
         categoria: g.categoria,
         valor_centavos: g.valor!,
-        pago_por: "leandro",
+        pago_por: g.pago_por ?? "leandro",
+        eh_presente: g.eh_presente,
         descricao: g.descricao,
         historico: true,
         confianca: g.estimado ? "estimado" : "confirmado",
@@ -202,6 +220,10 @@ export function planoMigracao(m: Migracao, lancamentos: Lancamento[], ctx: Conte
   const apagar = m.substitui
     ? ativos.filter((l) => l.historico && m.substitui!.test(l.descricao ?? "") && !deste.has(normal(l.descricao))).map((l) => l.id)
     : [];
+  if (m.saldoMP !== undefined) {
+    const caixa = calcularCaixa(ativos);
+    if (caixa !== m.saldoMP) criar.push(montarAjusteSaldo(m.saldoMP, caixa, { observacao: "Acerto inicial" }));
+  }
   const correcao = m.custoLisa ? montarCorrecaoCusto("lisa", m.custoLisa, ctx, { confianca: "estimado" }) : null;
   return { criar, apagar, correcao };
 }

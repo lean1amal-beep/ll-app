@@ -488,3 +488,16 @@ describe("vendas antigas", () => {
     expect(planoMigracao(m, p.criar, ctx(p.criar)).criar).toEqual([]);
   });
 });
+
+describe("fechar acerto", () => {
+  it("prensa vira dívida, Kittl é presente, não duplica com o acerto", async () => {
+    const { MIGRACOES, planoMigracao } = await import("@/lib/dominio/compras");
+    const m = MIGRACOES.find((x) => x.id === "acerto_prensa_kittl_2026_10")!;
+    const p = planoMigracao(m, [], ctx([]));
+    expect(p.criar.map((l) => l.tipo)).toEqual(["investimento", "investimento"]); // caixa já é 0: sem ajuste
+    const d = calcularDivida(p.criar, config);
+    expect(d.total).toBe(130000);
+    expect(calcularResumo(p.criar, config, T0).resultado).toBe(-160000);
+    expect(planoMigracao(m, p.criar, ctx(p.criar)).criar).toEqual([]);
+  });
+});

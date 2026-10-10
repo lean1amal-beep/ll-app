@@ -192,7 +192,11 @@ function AplicarCompras({ dados, m }: { dados: Dados; m: Migracao }) {
           await salvarConfig((c) => ({
             ...c,
             custos_referencia: m.custoLisa ? { ...c.custos_referencia, lisa_centavos: m.custoLisa } : c.custos_referencia,
-            acerto: { ...c.acerto, feitos: [...new Set([...c.acerto.feitos, ...(m.passos ?? [6])])] },
+            acerto: (() => {
+              const feitos = [...new Set([...c.acerto.feitos, ...(m.passos ?? [6])])];
+              const tudo = [1, 2, 3, 4, 5, 6, 7].every((n) => feitos.includes(n));
+              return { ...c.acerto, feitos, concluido: c.acerto.concluido || tudo, passo: tudo ? 8 : c.acerto.passo };
+            })(),
             migracoes: [...c.migracoes, m.id],
           }));
           avisar(`${plano.criar.length} lançamentos ✓`);

@@ -123,6 +123,8 @@ Confirmado pelo Leandro como **venda**: 01/05 R$ 110 · 02/05 R$ 80 · 12/05 R$ 
 
 **Fechado em 10/10** (pacote `vendas_antigas_2026_10` em `compras.ts`): Minas foram **2 fins de semana** (05/04: 4×70; 19–20/04: 3×50, 1×60, 4×70, 2×80) · Ruan 2 · Tallison 2 · Pablo 1 · Livia 1 · Lívia 2 · Leandro Lima 1 · Igor 1 (jul) · Dárison 5 (R$ 40) · Rock in Rio 5 · Igor set: boné R$ 40 (é o boné "venda-teste") + 3 personalizadas femininas a R$ 60 (femininas compradas na loja a R$ 40 cada = R$ 120) · Natanael 2 (qtd estimada) · out: 5 a R$ 40 (preço de custo; **faltam R$ 60 a receber** — quando entrar, não lançar como venda nova) · amigas do começo 3×50 (estimado). **Total 47 camisas + boné = R$ 2.665** → bate com as ~47 camisas que saíram pela conta do estoque. O "pedido de 10 personalizadas ~R$ 450" não apareceu separado (provavelmente era Dárison + Igor). Não sabe: 26/04 R$ 66.
 
+**Acerto fechado em 10/10** (pacote `acerto_prensa_kittl_2026_10`): saldo do Mercado Pago = **R$ 0** (conta zerada), prensa R$ 1.300 (pai, dívida, estimado), Kittl = **plano anual mais básico**, R$ 300 estimado (presente). Resultado esperado depois de tudo: **≈ −R$ 849 → faltam ~13 camisas** a R$ 99,90. Decisão: as 12 camisas retiradas continuam como custo da marca (o custo está dentro das compras antigas) — recomendação aceita implicitamente; rever se ele pedir.
+
 ### 2.4 Uso próprio
 Leandro já pegou **~5 a 7 camisas** da marca pra uso pessoal (inclusive estampas de pedidos de clientes). Entra como **retirada em produto (estimado)**.
 **Atualizado em 09/10:** são **~12 camisas retiradas** no total, entre uso próprio e presentes (ex.: uma de presente para a Camille). Lançar como uma retirada em produto de 12 (estimado), substituindo os ~6 do acerto.
@@ -293,7 +295,7 @@ Importação automática da Nuvemshop · TikTok Shop/lives · frete · clientes 
 - [ ] Lembrete: gerar chaves VAPID + CRON_SECRET + SUPABASE_SERVICE_ROLE_KEY na Vercel
 - [ ] Leandro: mandar prints dos produtos da Nuvemshop (nomes, preços, fotos)
 - [ ] Leandro: ver se Mercado Pago e Nubank exportam extrato em CSV
-- [ ] Leandro: confirmar valor e parcelas da prensa (R$ 1.300 em 12x = R$ 108,33/mês ≠ "80 e poucos")
+- [ ] Leandro: confirmar valor e parcelas da prensa (lançada como R$ 1.300 estimado em 10/10; ele vai conferir e a gente ajusta)
 - [ ] Leandro: contar o estoque atual (lisas por cor/tamanho, prontas, DTF)
 - [ ] Leandro: levantar vendas sem valor (Setfire, Bignew, baby looks, pedido de 10) e compras de DTF/lisas
 - [ ] Confirmar a 5ª peça do Halloween (esqueleto DJ ou "Side B: Afterlife")
