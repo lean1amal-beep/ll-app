@@ -116,6 +116,11 @@ nº 619 25/03 0,5 m R$ 40 · nº 68 10/04 1,24 m × 65 = R$ 80,60 · nº 328 13/
 
 Conferência pelo estoque (09/10): 90 lisas compradas − ~22 lisas contadas − 9 prontas − ~6 uso próprio ≈ **53 saíram**; vendas conhecidas (11 + 3 + 10 personalizadas) = 24 → **~29 camisas sem explicação** (Setfire, Bignew, baby looks, presentes, testes/perdas). Perguntas abertas ao Leandro: Setfire, Bignew, pedido de 10 (R$ 450?), baby looks, presentes/testes, vendas soltas.
 
+### 2.3.1 Conferência com o extrato do Nubank (fev a 08/10, enviado em 10/10)
+Confirmado pelo Leandro como **venda**: 01/05 R$ 110 · 02/05 R$ 80 · 12/05 R$ 50 · 16/05 R$ 100 · 25/07 R$ 200 (Dárison; personalizadas?) · Rock in Rio = 31/08 R$ 120 (2 camisas) + 02/09 R$ 60 (1) + 16/09 R$ 85,40 (= R$ 75 por 2 camisas + Uber) · Igor 09/09 R$ 40 + 14/09 R$ 180 (teve que comprar 3 femininas avulsas na loja porque o pedido da Zimm não chegou; valor a confirmar) · 06–07/10 cinco Pix de R$ 20/40 = R$ 140, **camisas vendidas a preço de custo**.
+**Não é venda:** Priscila (8), 19/06 R$ 127,97, 27/06 R$ 800, João Vittor (R$ 247), 28/09 R$ 150 (cachê).
+**Pendente:** Minas em 2 fins de semana pelo Pix (05/04: 4×70 = R$ 280; 19–20/04: 9 camisas = R$ 590 → 13 camisas/R$ 870 vs. memória 11/R$ 730)? · 09/04 R$ 140 · 20/04 R$ 60 · 26/04 R$ 66 · 03/06 R$ 50 · 02/07 R$ 60 (Igor) · 07/07 R$ 100 · 31/07 R$ 200 · 13/08 R$ 53,51 (serigrafia Vagalume) · 22/09 R$ 120 · quantidades por venda.
+
 ### 2.4 Uso próprio
 Leandro já pegou **~5 a 7 camisas** da marca pra uso pessoal (inclusive estampas de pedidos de clientes). Entra como **retirada em produto (estimado)**.
 **Atualizado em 09/10:** são **~12 camisas retiradas** no total, entre uso próprio e presentes (ex.: uma de presente para a Camille). Lançar como uma retirada em produto de 12 (estimado), substituindo os ~6 do acerto.
