@@ -20,7 +20,7 @@ import Estoque from "./telas/Estoque";
 import Historico, { DetalheLancamento } from "./telas/Historico";
 import Importar from "./telas/Importar";
 import Inicio from "./telas/Inicio";
-import Login from "./telas/Login";
+import Login, { NovaSenha } from "./telas/Login";
 import { Folha, Icone, ProvedorAvisos, cx } from "./ui";
 
 const ABAS = [
@@ -36,6 +36,8 @@ const CHAVE_LOGADO = "ll-caixa-logado";
 export default function App() {
   const [pronto, setPronto] = useState(false);
   const [email, setEmail] = useState<string | null>(null);
+  // Veio do link "Esqueci minha senha" do e-mail: pede a senha nova.
+  const [recuperando, setRecuperando] = useState(false);
 
   useEffect(() => {
     // Service worker: deixa o app abrir sem internet.
@@ -45,9 +47,18 @@ export default function App() {
     // Pede ao navegador para não apagar os dados locais.
     void navigator.storage?.persist?.();
     if (SUPABASE_ATIVO) {
+      if (/type=recovery/.test(window.location.hash)) setRecuperando(true);
       // Usa a marca local (não depende de internet para abrir o app).
       setEmail(localStorage.getItem(CHAVE_LOGADO));
-      supabase()
+      const sb = supabase();
+      sb?.auth.onAuthStateChange((evento, sessao) => {
+        if (evento === "PASSWORD_RECOVERY") setRecuperando(true);
+        if (sessao?.user.email && (evento === "PASSWORD_RECOVERY" || evento === "SIGNED_IN")) {
+          localStorage.setItem(CHAVE_LOGADO, sessao.user.email);
+          setEmail(sessao.user.email);
+        }
+      });
+      sb
         ?.auth.getSession()
         .then(({ data }) => {
           if (data.session?.user.email) {
@@ -65,6 +76,7 @@ export default function App() {
   }, [email]);
 
   if (!pronto) return <Carregando />;
+  if (recuperando) return <NovaSenha aoTerminar={() => setRecuperando(false)} />;
   if (SUPABASE_ATIVO && !email)
     return (
       <Login
