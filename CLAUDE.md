@@ -12,6 +12,7 @@
 - Ele **trava com excesso de frentes** e já trocou de direção várias vezes por consultar várias IAs. Mantenha o foco na v1 e no prazo.
 - Faça perguntas quando algo mudar o produto, mas agrupe tudo numa mensagem só, com perguntas numeradas.
 - O app é **só para ele**. Não há outros usuários.
+- **Mobile first, sempre** (pedido do Leandro em 17/10/2026): em qualquer site ou app que a gente montar, o celular tem prioridade. Desenhar e testar primeiro no celular (~390px) e só depois adaptar para o computador.
 
 ---
 
